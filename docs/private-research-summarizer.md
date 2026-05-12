@@ -18,6 +18,14 @@ from market_pdf_insights.private_research_synthesis import summarize_imported_pr
 summary = summarize_imported_private_research(document_id, store=store)
 ```
 
+To make the result searchable in the private library, index it:
+
+```python
+from market_pdf_insights.private_research_library import index_private_research_summary
+
+index_private_research_summary(summary, store=store, model="private-placeholder")
+```
+
 By default this uses `PlaceholderPrivateResearchClient`, which is deterministic and offline.
 `OpenAIPrivateResearchClient` is available for hosted synthesis when an injected SDK client or
 `OPENAI_API_KEY` is supplied.

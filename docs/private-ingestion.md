@@ -61,6 +61,9 @@ List and summarize private documents:
 ```bash
 market-pdf-insights private list
 market-pdf-insights private summarize private-abc123
+market-pdf-insights private search --ticker EXR
+market-pdf-insights private history --ticker EXR
+market-pdf-insights private compare private-doc-a private-doc-b
 ```
 
 For structured recommendation output, use the private synthesis API:

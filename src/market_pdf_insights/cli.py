@@ -31,8 +31,16 @@ from market_pdf_insights.private_ingestion import (
     private_document_display_rows,
     summarize_private_document,
 )
+from market_pdf_insights.private_research_library import (
+    PrivateResearchLibrary,
+    PrivateResearchSearchFilters,
+)
 from market_pdf_insights.private_research_policy import PrivateResearchPolicyError
-from market_pdf_insights.private_research_storage import initialize_private_research_store
+from market_pdf_insights.private_research_storage import (
+    PrivateRecommendationRecord,
+    initialize_private_research_store,
+)
+from market_pdf_insights.private_research_synthesis import summarize_imported_private_research
 from market_pdf_insights.private_settings import (
     PrivateResearchSettings,
     load_private_research_settings,
@@ -193,6 +201,31 @@ def build_parser() -> argparse.ArgumentParser:
     private_summarize_parser.add_argument("document_id", help="Private document id.")
     private_summarize_parser.set_defaults(func=_handle_private_summarize)
 
+    private_search_parser = private_subparsers.add_parser(
+        "search",
+        parents=[private_parent],
+        help="Search indexed private stock recommendations.",
+    )
+    _add_private_search_args(private_search_parser)
+    private_search_parser.set_defaults(func=_handle_private_search)
+
+    private_history_parser = private_subparsers.add_parser(
+        "history",
+        parents=[private_parent],
+        help="Show recommendation history for a ticker.",
+    )
+    private_history_parser.add_argument("--ticker", required=True, help="Ticker to inspect.")
+    private_history_parser.set_defaults(func=_handle_private_history)
+
+    private_compare_parser = private_subparsers.add_parser(
+        "compare",
+        parents=[private_parent],
+        help="Compare indexed recommendations between two private documents.",
+    )
+    private_compare_parser.add_argument("document_a", help="First private document id.")
+    private_compare_parser.add_argument("document_b", help="Second private document id.")
+    private_compare_parser.set_defaults(func=_handle_private_compare)
+
     return parser
 
 
@@ -348,6 +381,11 @@ def _handle_private_summarize(args: argparse.Namespace) -> int:
 
     _, store = _private_settings_and_store(args)
     summary = summarize_private_document(args.document_id, store=store)
+    structured_summary = summarize_imported_private_research(args.document_id, store=store)
+    PrivateResearchLibrary(store).index_summary(
+        structured_summary,
+        model=str(structured_summary.metadata.get("model") or "private-placeholder"),
+    )
     print(f"Document: {summary.document_id}")
     print(f"Summary: {summary.summary_text}")
     if summary.recommendation_label:
@@ -358,6 +396,80 @@ def _handle_private_summarize(args: argparse.Namespace) -> int:
         print(f"Risks: {', '.join(summary.risks)}")
     if summary.catalysts:
         print(f"Catalysts: {', '.join(summary.catalysts)}")
+    print(f"Structured recommendations indexed: {len(structured_summary.recommendations)}")
+    for recommendation in structured_summary.recommendations:
+        print(
+            "Indexed: "
+            f"{recommendation.ticker or '-'} | {recommendation.company_name} | "
+            f"{recommendation.recommendation}"
+        )
+    return 0
+
+
+def _handle_private_search(args: argparse.Namespace) -> int:
+    """Handle `private search`."""
+
+    _, store = _private_settings_and_store(args)
+    filters = PrivateResearchSearchFilters(
+        ticker=args.ticker,
+        company=args.company,
+        date_from=args.from_date,
+        date_to=args.to_date,
+        recommendation=args.rating,
+        sector=args.sector,
+        keyword=args.keyword,
+    )
+    records = PrivateResearchLibrary(store).search(filters)
+    if not records:
+        print("No indexed private recommendations matched.")
+        return 0
+    for record in records:
+        print(_private_recommendation_row(record))
+    return 0
+
+
+def _handle_private_history(args: argparse.Namespace) -> int:
+    """Handle `private history`."""
+
+    _, store = _private_settings_and_store(args)
+    records = PrivateResearchLibrary(store).recommendation_timeline(args.ticker)
+    if not records:
+        print(f"No indexed private recommendation history for {args.ticker.upper()}.")
+        return 0
+    for record in records:
+        print(_private_recommendation_row(record))
+    return 0
+
+
+def _handle_private_compare(args: argparse.Namespace) -> int:
+    """Handle `private compare`."""
+
+    _, store = _private_settings_and_store(args)
+    comparison = PrivateResearchLibrary(store).compare_documents(
+        args.document_a,
+        args.document_b,
+    )
+    print(f"Compare: {comparison.document_a_id} -> {comparison.document_b_id}")
+    if comparison.changed:
+        print("Changed:")
+        for change in comparison.changed:
+            target_change = ""
+            if change.from_target_price != change.to_target_price:
+                target_change = f" target {change.from_target_price} -> {change.to_target_price}"
+            print(
+                f"- {change.ticker or change.company_name}: "
+                f"{change.from_recommendation} -> {change.to_recommendation}{target_change}"
+            )
+    if comparison.only_in_a:
+        print(f"Only in first: {', '.join(comparison.only_in_a)}")
+    if comparison.only_in_b:
+        print(f"Only in second: {', '.join(comparison.only_in_b)}")
+    if comparison.unchanged:
+        print(f"Unchanged: {', '.join(comparison.unchanged)}")
+    if comparison.unresolved_questions:
+        print("Verification questions:")
+        for question in comparison.unresolved_questions[:10]:
+            print(f"- {question.ticker or question.company_name}: {question.question}")
     return 0
 
 
@@ -436,6 +548,43 @@ def _add_private_common_args(parser: argparse.ArgumentParser) -> None:
         type=Path,
         default=None,
         help="Override private local data directory.",
+    )
+
+
+def _add_private_search_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--ticker", default=None, help="Filter by ticker.")
+    parser.add_argument("--company", default=None, help="Filter by company name.")
+    parser.add_argument(
+        "--from-date",
+        type=_parse_date,
+        default=None,
+        help="Filter from recommendation date YYYY-MM-DD.",
+    )
+    parser.add_argument(
+        "--to-date",
+        type=_parse_date,
+        default=None,
+        help="Filter to recommendation date YYYY-MM-DD.",
+    )
+    parser.add_argument("--rating", default=None, help="Filter by recommendation/rating.")
+    parser.add_argument("--sector", default=None, help="Filter by sector.")
+    parser.add_argument(
+        "--keyword",
+        default=None,
+        help="Filter by keyword in thesis, risk, or catalyst text.",
+    )
+
+
+def _private_recommendation_row(record: PrivateRecommendationRecord) -> str:
+    issue_date = record.issue_date.isoformat() if record.issue_date else ""
+    target = (
+        f" | target {record.target_price_currency or ''} {record.stated_target_price:g}"
+        if record.stated_target_price is not None
+        else ""
+    )
+    return (
+        f"{record.document_id} | {issue_date} | {record.ticker or '-'} | "
+        f"{record.company_name} | {record.recommendation}{target}"
     )
 
 

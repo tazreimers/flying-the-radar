@@ -42,11 +42,14 @@ files belong under `.private-research/raw-documents/`, which is ignored by git.
 - `private_documents`: document metadata, attribution JSON, optional raw/text path references;
 - `private_summaries`: generated private summaries, labels, tickers, risks, and catalysts;
 - `private_citations`: source-backed citation locations and short snippets.
+- `private_structured_summaries`: validated structured private recommendation summaries;
+- `private_stock_recommendations`: denormalized recommendation rows for local search/history.
 
 The store supports:
 
 - initialization from settings;
 - document, summary, and citation insert/query;
+- structured summary and recommendation index insert/query;
 - document deletion with cascaded summaries/citations;
 - optional file deletion for local raw/text sidecars;
 - retention cleanup for old summaries, metadata, raw paths, and extracted text paths.

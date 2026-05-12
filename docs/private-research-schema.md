@@ -55,3 +55,6 @@ text and does not produce personal financial advice.
 
 `market_pdf_insights.private_research_synthesis` produces this schema from imported private
 documents through a chunk-notes-then-synthesis flow.
+
+`market_pdf_insights.private_research_library` indexes the schema into local recommendation
+rows for search, history, and document comparison.

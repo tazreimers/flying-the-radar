@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 import json
 from pathlib import Path
 import sqlite3
@@ -15,6 +15,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from market_pdf_insights.private_research_policy import (
     PrivateResearchAccessMethod,
     PrivateSourceAttribution,
+)
+from market_pdf_insights.private_research_schema import (
+    PrivateResearchDocument,
+    SourceExcerpt,
+    StockRecommendation,
 )
 from market_pdf_insights.private_settings import PrivateResearchSettings, PrivateRetentionPolicy
 
@@ -87,6 +92,62 @@ class PrivateCitationRecord(BaseModel):
     def _require_created_timezone(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
             raise ValueError("created_at must include timezone information")
+        return value
+
+
+class PrivateStructuredSummaryRecord(BaseModel):
+    """Stored structured private research summary."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    structured_summary_id: str = Field(default_factory=lambda: uuid.uuid4().hex, min_length=1)
+    document_id: str = Field(min_length=1)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    model: str | None = None
+    summary: PrivateResearchDocument
+
+    @field_validator("generated_at")
+    @classmethod
+    def _require_generated_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("generated_at must include timezone information")
+        return value
+
+
+class PrivateRecommendationRecord(BaseModel):
+    """Denormalized recommendation row for private library search/history."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    document_id: str = Field(min_length=1)
+    structured_summary_id: str = Field(min_length=1)
+    document_title: str = Field(min_length=1)
+    source_name: str = Field(min_length=1)
+    issue_date: date | None = None
+    generated_at: datetime
+    recommendation_id: str = Field(min_length=1)
+    company_name: str = Field(min_length=1)
+    ticker: str | None = None
+    exchange: str | None = None
+    sector: str | None = None
+    recommendation: str = Field(min_length=1)
+    source_rating: str | None = None
+    stated_target_price: float | None = None
+    target_price_currency: str | None = None
+    time_horizon: str | None = None
+    thesis: str | None = None
+    risks: tuple[str, ...] = ()
+    catalysts: tuple[str, ...] = ()
+    verification_questions: tuple[str, ...] = ()
+    source_excerpt: SourceExcerpt | None = None
+    confidence_score: float = Field(ge=0, le=1)
+    recommendation_payload: StockRecommendation
+
+    @field_validator("generated_at")
+    @classmethod
+    def _require_generated_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("generated_at must include timezone information")
         return value
 
 
@@ -216,6 +277,105 @@ class PrivateResearchStore:
             rows = conn.execute(query, params).fetchall()
         return [_citation_from_row(row) for row in rows]
 
+    def add_structured_summary(
+        self,
+        summary: PrivateResearchDocument,
+        *,
+        model: str | None = None,
+        generated_at: datetime | None = None,
+    ) -> PrivateStructuredSummaryRecord:
+        """Store a structured private summary and refresh recommendation index rows."""
+
+        self.initialize()
+        record = PrivateStructuredSummaryRecord(
+            document_id=summary.document_id,
+            generated_at=generated_at or datetime.now(UTC),
+            model=model,
+            summary=summary,
+        )
+        recommendations = _recommendation_records_from_summary(record)
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO private_structured_summaries (
+                    structured_summary_id, document_id, generated_at, model, summary_json
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                _structured_summary_values(record),
+            )
+            conn.execute(
+                "DELETE FROM private_stock_recommendations WHERE document_id = ?",
+                (record.document_id,),
+            )
+            conn.executemany(
+                """
+                INSERT OR REPLACE INTO private_stock_recommendations (
+                    recommendation_id, document_id, structured_summary_id, document_title,
+                    source_name, issue_date, generated_at, company_name, ticker, exchange,
+                    sector, recommendation, source_rating, stated_target_price,
+                    target_price_currency, time_horizon, thesis, risks_json, catalysts_json,
+                    verification_questions_json, source_excerpt_json, confidence_score,
+                    recommendation_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [_recommendation_values(recommendation) for recommendation in recommendations],
+            )
+        return record
+
+    def get_latest_structured_summary(
+        self,
+        document_id: str,
+    ) -> PrivateStructuredSummaryRecord | None:
+        """Return the latest structured private summary for a document."""
+
+        self.initialize()
+        with self._connect() as conn:
+            row = conn.execute(
+                """
+                SELECT * FROM private_structured_summaries
+                WHERE document_id = ?
+                ORDER BY generated_at DESC
+                LIMIT 1
+                """,
+                (document_id,),
+            ).fetchone()
+        return _structured_summary_from_row(row) if row else None
+
+    def list_structured_summaries(
+        self,
+        document_id: str | None = None,
+    ) -> list[PrivateStructuredSummaryRecord]:
+        """Return structured private summaries, optionally filtered by document."""
+
+        self.initialize()
+        query = "SELECT * FROM private_structured_summaries"
+        params: tuple[str, ...] = ()
+        if document_id is not None:
+            query += " WHERE document_id = ?"
+            params = (document_id,)
+        query += " ORDER BY generated_at DESC"
+        with self._connect() as conn:
+            rows = conn.execute(query, params).fetchall()
+        return [_structured_summary_from_row(row) for row in rows]
+
+    def list_recommendations(
+        self,
+        *,
+        document_id: str | None = None,
+    ) -> list[PrivateRecommendationRecord]:
+        """Return denormalized private recommendation index rows."""
+
+        self.initialize()
+        query = "SELECT * FROM private_stock_recommendations"
+        params: tuple[str, ...] = ()
+        if document_id is not None:
+            query += " WHERE document_id = ?"
+            params = (document_id,)
+        query += " ORDER BY COALESCE(issue_date, generated_at) DESC, company_name"
+        with self._connect() as conn:
+            rows = conn.execute(query, params).fetchall()
+        return [_recommendation_from_row(row) for row in rows]
+
     def delete_document(self, document_id: str, *, delete_files: bool = False) -> bool:
         """Delete a document and cascaded summaries/citations."""
 
@@ -329,6 +489,44 @@ def initialize_private_research_store(settings: PrivateResearchSettings) -> Priv
     return store
 
 
+def _structured_summary_values(record: PrivateStructuredSummaryRecord) -> tuple[Any, ...]:
+    return (
+        record.structured_summary_id,
+        record.document_id,
+        _to_iso(record.generated_at),
+        record.model,
+        record.summary.model_dump_json(),
+    )
+
+
+def _recommendation_values(recommendation: PrivateRecommendationRecord) -> tuple[Any, ...]:
+    return (
+        recommendation.recommendation_id,
+        recommendation.document_id,
+        recommendation.structured_summary_id,
+        recommendation.document_title,
+        recommendation.source_name,
+        recommendation.issue_date.isoformat() if recommendation.issue_date else None,
+        _to_iso(recommendation.generated_at),
+        recommendation.company_name,
+        recommendation.ticker,
+        recommendation.exchange,
+        recommendation.sector,
+        recommendation.recommendation,
+        recommendation.source_rating,
+        recommendation.stated_target_price,
+        recommendation.target_price_currency,
+        recommendation.time_horizon,
+        recommendation.thesis,
+        json.dumps(list(recommendation.risks)),
+        json.dumps(list(recommendation.catalysts)),
+        json.dumps(list(recommendation.verification_questions)),
+        recommendation.source_excerpt.model_dump_json() if recommendation.source_excerpt else None,
+        recommendation.confidence_score,
+        recommendation.recommendation_payload.model_dump_json(),
+    )
+
+
 def _document_values(document: PrivateDocumentRecord) -> tuple[Any, ...]:
     return (
         document.document_id,
@@ -371,6 +569,101 @@ def _citation_values(citation: PrivateCitationRecord) -> tuple[Any, ...]:
         citation.snippet,
         _to_iso(citation.created_at),
     )
+
+
+def _structured_summary_from_row(row: sqlite3.Row) -> PrivateStructuredSummaryRecord:
+    return PrivateStructuredSummaryRecord(
+        structured_summary_id=row["structured_summary_id"],
+        document_id=row["document_id"],
+        generated_at=_parse_datetime(row["generated_at"]),
+        model=row["model"],
+        summary=PrivateResearchDocument.model_validate_json(row["summary_json"]),
+    )
+
+
+def _recommendation_from_row(row: sqlite3.Row) -> PrivateRecommendationRecord:
+    return PrivateRecommendationRecord(
+        recommendation_id=row["recommendation_id"],
+        document_id=row["document_id"],
+        structured_summary_id=row["structured_summary_id"],
+        document_title=row["document_title"],
+        source_name=row["source_name"],
+        issue_date=date.fromisoformat(row["issue_date"]) if row["issue_date"] else None,
+        generated_at=_parse_datetime(row["generated_at"]),
+        company_name=row["company_name"],
+        ticker=row["ticker"],
+        exchange=row["exchange"],
+        sector=row["sector"],
+        recommendation=row["recommendation"],
+        source_rating=row["source_rating"],
+        stated_target_price=row["stated_target_price"],
+        target_price_currency=row["target_price_currency"],
+        time_horizon=row["time_horizon"],
+        thesis=row["thesis"],
+        risks=tuple(json.loads(row["risks_json"] or "[]")),
+        catalysts=tuple(json.loads(row["catalysts_json"] or "[]")),
+        verification_questions=tuple(json.loads(row["verification_questions_json"] or "[]")),
+        source_excerpt=SourceExcerpt.model_validate_json(row["source_excerpt_json"])
+        if row["source_excerpt_json"]
+        else None,
+        confidence_score=float(row["confidence_score"]),
+        recommendation_payload=StockRecommendation.model_validate_json(row["recommendation_json"]),
+    )
+
+
+def _recommendation_records_from_summary(
+    record: PrivateStructuredSummaryRecord,
+) -> list[PrivateRecommendationRecord]:
+    summary = record.summary
+    records: list[PrivateRecommendationRecord] = []
+    for recommendation in summary.recommendations:
+        records.append(
+            PrivateRecommendationRecord(
+                document_id=summary.document_id,
+                structured_summary_id=record.structured_summary_id,
+                document_title=summary.document_title,
+                source_name=summary.source_name,
+                issue_date=summary.issue_date,
+                generated_at=record.generated_at,
+                recommendation_id=recommendation.recommendation_id,
+                company_name=recommendation.company_name,
+                ticker=recommendation.ticker,
+                exchange=recommendation.exchange,
+                sector=recommendation.sector,
+                recommendation=recommendation.recommendation,
+                source_rating=recommendation.source_rating,
+                stated_target_price=recommendation.stated_target_price,
+                target_price_currency=recommendation.target_price_currency,
+                time_horizon=recommendation.time_horizon,
+                thesis=recommendation.thesis,
+                risks=tuple(risk.risk for risk in recommendation.risks),
+                catalysts=tuple(catalyst.catalyst for catalyst in recommendation.catalysts),
+                verification_questions=tuple(
+                    _verification_questions_for_recommendation(summary, recommendation)
+                ),
+                source_excerpt=recommendation.source_citation,
+                confidence_score=recommendation.confidence_score,
+                recommendation_payload=recommendation,
+            )
+        )
+    return records
+
+
+def _verification_questions_for_recommendation(
+    summary: PrivateResearchDocument,
+    recommendation: StockRecommendation,
+) -> list[str]:
+    questions: list[str] = []
+    for number in recommendation.numbers_to_verify:
+        questions.append(f"{number.value}: {number.context}")
+    for number in summary.numbers_to_verify:
+        questions.append(f"{number.value}: {number.context}")
+    for question in summary.personal_action_questions:
+        if question.related_recommendation_id == recommendation.recommendation_id:
+            questions.append(question.question)
+        elif question.related_ticker and question.related_ticker == recommendation.ticker:
+            questions.append(question.question)
+    return _dedupe_preserving_order(questions)
 
 
 def _document_from_row(row: sqlite3.Row) -> PrivateDocumentRecord:
@@ -446,6 +739,18 @@ def _optional_path(value: str | None) -> Path | None:
     return Path(value) if value else None
 
 
+def _dedupe_preserving_order(values: Iterable[str]) -> list[str]:
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for value in values:
+        key = value.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(value)
+    return deduped
+
+
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS private_documents (
     document_id TEXT PRIMARY KEY,
@@ -494,10 +799,64 @@ CREATE TABLE IF NOT EXISTS private_citations (
         ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS private_structured_summaries (
+    structured_summary_id TEXT PRIMARY KEY,
+    document_id TEXT NOT NULL,
+    generated_at TEXT NOT NULL,
+    model TEXT,
+    summary_json TEXT NOT NULL,
+    FOREIGN KEY (document_id)
+        REFERENCES private_documents(document_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS private_stock_recommendations (
+    recommendation_id TEXT NOT NULL,
+    document_id TEXT NOT NULL,
+    structured_summary_id TEXT NOT NULL,
+    document_title TEXT NOT NULL,
+    source_name TEXT NOT NULL,
+    issue_date TEXT,
+    generated_at TEXT NOT NULL,
+    company_name TEXT NOT NULL,
+    ticker TEXT,
+    exchange TEXT,
+    sector TEXT,
+    recommendation TEXT NOT NULL,
+    source_rating TEXT,
+    stated_target_price REAL,
+    target_price_currency TEXT,
+    time_horizon TEXT,
+    thesis TEXT,
+    risks_json TEXT NOT NULL DEFAULT '[]',
+    catalysts_json TEXT NOT NULL DEFAULT '[]',
+    verification_questions_json TEXT NOT NULL DEFAULT '[]',
+    source_excerpt_json TEXT,
+    confidence_score REAL NOT NULL,
+    recommendation_json TEXT NOT NULL,
+    PRIMARY KEY (document_id, recommendation_id),
+    FOREIGN KEY (document_id)
+        REFERENCES private_documents(document_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (structured_summary_id)
+        REFERENCES private_structured_summaries(structured_summary_id)
+        ON DELETE CASCADE
+);
+
 CREATE INDEX IF NOT EXISTS idx_private_documents_imported_at
     ON private_documents(imported_at);
 CREATE INDEX IF NOT EXISTS idx_private_summaries_document_id
     ON private_summaries(document_id);
 CREATE INDEX IF NOT EXISTS idx_private_citations_document_id
     ON private_citations(document_id);
+CREATE INDEX IF NOT EXISTS idx_private_structured_summaries_document_id
+    ON private_structured_summaries(document_id);
+CREATE INDEX IF NOT EXISTS idx_private_stock_recommendations_ticker
+    ON private_stock_recommendations(ticker);
+CREATE INDEX IF NOT EXISTS idx_private_stock_recommendations_company
+    ON private_stock_recommendations(company_name);
+CREATE INDEX IF NOT EXISTS idx_private_stock_recommendations_rating
+    ON private_stock_recommendations(recommendation);
+CREATE INDEX IF NOT EXISTS idx_private_stock_recommendations_issue_date
+    ON private_stock_recommendations(issue_date);
 """

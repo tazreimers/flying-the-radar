@@ -62,8 +62,8 @@ flowchart TD
   synthesizes validated `PrivateResearchDocument` output with safety prompts and JSON retries.
 - `private_undertheradar_connector.py`: disabled Under the Radar connector stub. It validates
   environment, terms, settings, and credential gates, then refuses live automation.
-- `private_library.py`: private document metadata, storage, and history. Separate from the
-  public brief cache.
+- `private_research_library.py`: local private recommendation search, history, latest ticker
+  lookup, document comparison, and unresolved verification questions.
 - `private_recommendations.py`: extract recommendations, risks, catalysts, and valuation notes.
   No personal advice.
 - `private_digest.py`: render private single-user digests. No redistribution workflow.
@@ -101,6 +101,9 @@ private summarizer that chunks imported extracted text, creates source-grounded 
 synthesizes validated private recommendation output. The default client is deterministic and
 offline; the OpenAI client is injectable and retries malformed JSON.
 
-The Under the Radar connector is only a disabled safety stub; it does not implement live login,
-scraping, browser automation, or PDF download. The app also does not yet implement a
-password-protected UI, search/Q&A, or a private digest.
+The current private library indexes structured summaries into local recommendation rows and
+supports ticker/company/date/rating/sector/keyword search, recommendation history, document
+comparison, and unresolved verification questions. The Under the Radar connector is only a
+disabled safety stub; it does not implement live login, scraping, browser automation, or PDF
+download. The app also does not yet implement a password-protected UI, natural-language
+search/Q&A, or a private digest.

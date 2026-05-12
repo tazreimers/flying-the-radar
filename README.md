@@ -31,6 +31,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Private ingestion](docs/private-ingestion.md)
 - [Private research schema](docs/private-research-schema.md)
 - [Private research summarizer](docs/private-research-summarizer.md)
+- [Private research library](docs/private-research-library.md)
 - [Optional Under the Radar connector stub](docs/private-undertheradar-connector.md)
 - [Private research settings and storage](docs/private-research-storage.md)
 
@@ -60,6 +61,10 @@ subscribed articles or reports.
 The private summarizer can turn an imported private document into that schema using the existing
 chunking pipeline, an offline placeholder client, or an injected/OpenAI client with retrying
 JSON validation. Its prompts frame output as a source summary, not personal financial advice.
+
+The private library indexes structured summaries so local recommendations can be searched by
+ticker, company, date range, rating, sector, and risk/catalyst keyword, with timeline and
+document comparison helpers.
 
 An optional Under the Radar connector stub exists for future personal automation design. It is
 disabled by default, requires explicit environment and terms gates, and still refuses to perform
@@ -178,6 +183,9 @@ Import and summarize private subscribed research you already possess:
 market-pdf-insights private import ~/Downloads/under-the-radar-report.pdf
 market-pdf-insights private list
 market-pdf-insights private summarize private-abc123
+market-pdf-insights private search --ticker EXR
+market-pdf-insights private history --ticker EXR
+market-pdf-insights private compare private-doc-a private-doc-b
 ```
 
 ## Streamlit Dashboard
@@ -288,6 +296,7 @@ Core modules:
 - `daily_brief_config.py`: TOML configuration and validation.
 - `daily_brief_runner.py`: configured ingestion, synthesis, output writing, and dry-run email.
 - `private_ingestion.py`: private PDFs, local files, saved emails, and manual text imports.
+- `private_research_library.py`: private recommendation search, history, and comparison.
 - `private_research_schema.py`: structured private stock recommendation schema.
 - `private_research_synthesis.py`: private chunk notes and structured recommendation synthesis.
 - `private_research_storage.py`: local SQLite store for private documents, summaries, citations.

@@ -259,6 +259,7 @@ class StockRecommendation(StrictPrivateResearchModel):
     company_name: NonEmptyStr = Field(description="Company name from the source.")
     ticker: str | None = Field(default=None, pattern=r"^[A-Z0-9.\-]{1,16}$")
     exchange: str | None = Field(default=None, pattern=r"^[A-Z0-9.\-]{2,12}$")
+    sector: NonEmptyStr | None = Field(default=None)
     recommendation: RecommendationRating = Field(description="Canonical source rating.")
     source_rating: NonEmptyStr | None = Field(
         default=None,

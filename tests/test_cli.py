@@ -13,6 +13,17 @@ import tempfile
 import unittest
 
 from market_pdf_insights.cli import main
+from market_pdf_insights.private_ingestion import import_manual_private_text
+from market_pdf_insights.private_research_library import PrivateResearchLibrary
+from market_pdf_insights.private_research_schema import (
+    NumberToVerify,
+    PersonalActionQuestion,
+    PrivateResearchDocument,
+    SourceExcerpt,
+    StockRecommendation,
+)
+from market_pdf_insights.private_research_storage import initialize_private_research_store
+from market_pdf_insights.private_settings import PrivateResearchSettings
 from tests.pdf_fixtures import has_pymupdf, write_sample_pdf
 
 
@@ -243,6 +254,121 @@ Risks: Liquidity risk
             summary_output = summary_stdout.getvalue()
             self.assertIn("Recommendation label: Buy", summary_output)
             self.assertIn("ABC", summary_output)
+
+    def test_private_search_history_and_compare_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            data_dir = tmp_path / "private-data"
+            first_id, second_id = _seed_private_cli_library(data_dir)
+
+            search_stdout = io.StringIO()
+            with redirect_stdout(search_stdout):
+                search_exit = main(
+                    ["private", "search", "--ticker", "EXR", "--data-dir", str(data_dir)]
+                )
+
+            history_stdout = io.StringIO()
+            with redirect_stdout(history_stdout):
+                history_exit = main(
+                    ["private", "history", "--ticker", "EXR", "--data-dir", str(data_dir)]
+                )
+
+            compare_stdout = io.StringIO()
+            with redirect_stdout(compare_stdout):
+                compare_exit = main(
+                    [
+                        "private",
+                        "compare",
+                        first_id,
+                        second_id,
+                        "--data-dir",
+                        str(data_dir),
+                    ]
+                )
+
+            self.assertEqual(search_exit, 0)
+            self.assertEqual(history_exit, 0)
+            self.assertEqual(compare_exit, 0)
+            self.assertIn("EXR", search_stdout.getvalue())
+            self.assertIn("speculative_buy", history_stdout.getvalue())
+            self.assertIn("hold -> speculative_buy", compare_stdout.getvalue())
+
+
+def _seed_private_cli_library(data_dir: Path) -> tuple[str, str]:
+    settings = PrivateResearchSettings(local_data_dir=data_dir)
+    store = initialize_private_research_store(settings)
+    first = import_manual_private_text(
+        "Under the Radar EXR May\nIssue Date: 2026-05-01\n\nRecommendation: Hold\nEXR.",
+        settings=settings,
+        store=store,
+        title="Under the Radar EXR May",
+    ).documents[0]
+    second = import_manual_private_text(
+        (
+            "Under the Radar EXR June\nIssue Date: 2026-06-01\n\n"
+            "Recommendation: Speculative Buy\nEXR."
+        ),
+        settings=settings,
+        store=store,
+        title="Under the Radar EXR June",
+    ).documents[0]
+    library = PrivateResearchLibrary(store)
+    library.index_summary(_cli_private_summary(first.document_id, "2026-05-01", "hold", 1.0))
+    library.index_summary(
+        _cli_private_summary(second.document_id, "2026-06-01", "speculative_buy", 1.35)
+    )
+    return first.document_id, second.document_id
+
+
+def _cli_private_summary(
+    document_id: str,
+    issue_date: str,
+    rating: str,
+    target: float,
+) -> PrivateResearchDocument:
+    recommendation = StockRecommendation(
+        recommendation_id=f"rec-exr-{issue_date}",
+        company_name="Example Resources",
+        ticker="EXR",
+        exchange="ASX",
+        sector="materials",
+        recommendation=rating,
+        source_rating=rating.replace("_", " ").title(),
+        stated_target_price=target,
+        target_price_currency="AUD",
+        recommendation_date=issue_date,
+        risks=[],
+        catalysts=[],
+        numbers_to_verify=[
+            NumberToVerify(value=f"AUD {target}", context="Source target price.")
+        ],
+        source_citation=SourceExcerpt(
+            excerpt_id=f"excerpt-exr-{issue_date}",
+            document_id=document_id,
+            source_name="Under the Radar",
+            document_title=f"Under the Radar EXR {issue_date}",
+            section="Recommendation",
+            excerpt="Short source-backed rating note.",
+        ),
+        confidence_score=0.7,
+    )
+    return PrivateResearchDocument(
+        document_id=document_id,
+        source_name="Under the Radar",
+        document_title=f"Under the Radar EXR {issue_date}",
+        issue_date=issue_date,
+        document_summary="Private source summary.",
+        recommendations=[recommendation],
+        personal_action_questions=[
+            PersonalActionQuestion(
+                question_id=f"q-{document_id}",
+                question="What target price assumption needs checking?",
+                related_ticker="EXR",
+                related_recommendation_id=recommendation.recommendation_id,
+            )
+        ],
+        confidence_score=0.7,
+    )
 
 
 def _write_brief_fixture_config(tmp_path: Path, *, cache: bool = False) -> Path:
