@@ -1,0 +1,12 @@
+Build the MVP for `market-pdf-insights`.
+
+The repository should:
+1. Extract text from a PDF.
+2. Chunk long documents.
+3. Use an LLM to summarize the document.
+4. Return a structured market insight report.
+5. Provide both CLI and Streamlit interfaces.
+6. Save JSON and Markdown outputs.
+7. Include tests with mocked LLM calls.
+
+Prioritize clean architecture, readability, and extensibility.

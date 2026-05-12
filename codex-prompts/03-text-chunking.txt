@@ -1,0 +1,8 @@
+Implement document chunking.
+
+Requirements:
+- Add `chunk_text(text: str, max_chars: int = 6000, overlap: int = 500) -> list[str]`.
+- Try to split on headings, paragraphs, then sentences.
+- Preserve enough context between chunks using overlap.
+- Add unit tests for long documents, short documents, and empty documents.
+- Keep the implementation dependency-light.

@@ -1,0 +1,19 @@
+Improve the financial analysis prompting.
+
+The summarizer should instruct the model to extract:
+- main investment thesis
+- bullish arguments
+- bearish arguments
+- valuation assumptions
+- macroeconomic assumptions
+- sector implications
+- named companies, tickers, indices, commodities, currencies, and rates
+- time horizon
+- catalysts
+- risks
+- claims that need external verification
+
+The model must not give financial advice.
+It should summarize and analyze the document only.
+
+Update prompts and tests.

@@ -1,0 +1,28 @@
+Work in this repository (flying-the-radar)
+
+The project should accept a PDF file containing stock market commentary or financial research and produce a structured summary.
+
+Set up:
+- src/market_pdf_insights/
+- tests/
+- examples/
+- README.md
+- pyproject.toml
+- .env.example
+- .gitignore
+
+Use Python 3.11+.
+
+Include a CLI entry point:
+
+market-pdf-insights summarize path/to/file.pdf
+
+For now, implement placeholder modules:
+- pdf_loader.py
+- chunker.py
+- llm_client.py
+- insight_schema.py
+- summarizer.py
+- cli.py
+
+Add clean typing, docstrings, and basic tests.

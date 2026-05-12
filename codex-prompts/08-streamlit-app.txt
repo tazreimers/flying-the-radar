@@ -1,0 +1,15 @@
+Add a simple Streamlit web app.
+
+Requirements:
+- Upload a PDF.
+- Extract and summarize it.
+- Display:
+  - executive summary
+  - market stance
+  - key claims
+  - bullish points
+  - bearish risks
+  - mentioned assets
+  - numbers to verify
+- Allow download as JSON and Markdown.
+- Keep the app simple and clean.

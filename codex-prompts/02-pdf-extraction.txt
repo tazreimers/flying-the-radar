@@ -1,0 +1,12 @@
+Implement the PDF extraction layer for this repository.
+
+Requirements:
+- Use PyMuPDF or pdfplumber.
+- Create a function `extract_pdf_text(pdf_path: Path) -> str`.
+- Preserve page order.
+- Add page markers like `--- Page 1 ---`.
+- Handle encrypted, missing, or invalid PDFs gracefully.
+- Add tests using a small generated sample PDF.
+- Update the README with usage examples.
+
+Do not implement LLM summarization yet.

@@ -1,0 +1,13 @@
+Implement the LLM summarization layer.
+
+Use the OpenAI Python SDK.
+
+Requirements:
+- Load API key from environment variable.
+- Create `summarize_chunks(chunks: list[str]) -> MarketInsightReport`.
+- First summarize each chunk into structured notes.
+- Then synthesize the notes into one final MarketInsightReport.
+- Use the Pydantic schema for validation.
+- Include retry logic for malformed JSON.
+- Add a mock LLM client for tests.
+- Do not hardcode any API keys.

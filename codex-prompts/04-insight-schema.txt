@@ -1,0 +1,26 @@
+Design the structured output schema for market research summaries.
+
+Create Pydantic models for:
+
+- MarketInsightReport
+- KeyClaim
+- Risk
+- MentionedAsset
+- MacroAssumption
+- VerificationItem
+
+The final report should include:
+- document_title
+- executive_summary
+- market_stance: bullish, bearish, neutral, mixed, unclear
+- key_claims
+- supporting_evidence
+- risks
+- sectors_mentioned
+- companies_or_tickers_mentioned
+- macro_assumptions
+- numbers_to_verify
+- unanswered_questions
+- confidence_score
+
+Add validation and example JSON output.

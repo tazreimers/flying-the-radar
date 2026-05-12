@@ -1,0 +1,13 @@
+Improve the CLI experience.
+
+Requirements:
+- Command: `market-pdf-insights summarize report.pdf`
+- Options:
+  --output report.json
+  --markdown report.md
+  --model MODEL_NAME
+  --max-chars 6000
+- Print a clean terminal summary.
+- Save full structured JSON.
+- Optionally save a Markdown report.
+- Add helpful error messages.
