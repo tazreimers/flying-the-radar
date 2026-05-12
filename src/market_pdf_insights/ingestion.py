@@ -298,6 +298,30 @@ class LocalFixtureConnector(MarketSourceConnector):
         ]
 
 
+class MockConnector(MarketSourceConnector):
+    """Offline connector for tests and local MVP wiring."""
+
+    def __init__(
+        self,
+        source: SourceDefinition,
+        *,
+        raw_items: Sequence[RawSourceItem | dict[str, Any]],
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(source, require_automated=False, **kwargs)
+        self.raw_items = tuple(
+            item if isinstance(item, RawSourceItem) else RawSourceItem.model_validate(item)
+            for item in raw_items
+        )
+        self.fetch_count = 0
+
+    def fetch_raw(self, since: datetime | None = None) -> list[RawSourceItem]:
+        """Return configured raw items without network or filesystem access."""
+
+        self.fetch_count += 1
+        return list(self.raw_items)
+
+
 class JsonlMarketItemStore:
     """Simple JSONL cache for normalized market items."""
 

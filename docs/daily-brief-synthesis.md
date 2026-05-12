@@ -17,6 +17,7 @@ validated `DailyMarketBrief`.
   the PDF summarizer.
 - `MockDailyBriefLLMClient`: deterministic local/test implementation that produces a valid
   brief without network calls.
+- `MockBriefLLMClient`: short alias for the same deterministic daily brief test client.
 
 ## Guardrails
 

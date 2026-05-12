@@ -1,0 +1,12 @@
+{
+  "articles": [
+    {
+      "id": "news-1",
+      "title": "Global markets steady before central bank speeches",
+      "description": "Investors watched USD, commodities, and policy commentary.",
+      "url": "https://example.test/news/central-bank-speeches",
+      "published_at": "2026-05-12T03:00:00Z",
+      "tickers": ["USD", "AUD"]
+    }
+  ]
+}

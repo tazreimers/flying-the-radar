@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "json-api-1",
+      "headline": "Australian CPI cools but services inflation remains sticky",
+      "summary": "AUD and rate-sensitive equities stayed in focus after the CPI update.",
+      "link": "https://example.test/data/au-cpi",
+      "date": "2026-05-12T01:30:00Z",
+      "tickers": ["AUD"]
+    }
+  ]
+}

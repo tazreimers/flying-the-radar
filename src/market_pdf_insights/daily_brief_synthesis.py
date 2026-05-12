@@ -371,6 +371,10 @@ class MockDailyBriefLLMClient:
         )
 
 
+class MockBriefLLMClient(MockDailyBriefLLMClient):
+    """Short alias for the deterministic daily brief synthesizer."""
+
+
 def build_source_citations(items: Sequence[NormalizedMarketItem]) -> list[SourceCitation]:
     """Build deduplicated source citations from normalized source items."""
 

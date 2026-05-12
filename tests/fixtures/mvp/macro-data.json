@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "macro-1",
+      "title": "US 10-year yield holds near 4.33",
+      "summary": "DGS10 remained elevated, keeping global duration risk in focus.",
+      "url": "https://example.test/macro/dgs10",
+      "published_at": "2026-05-12T02:10:00Z",
+      "tickers": ["DGS10", "USD"]
+    }
+  ]
+}
