@@ -27,6 +27,7 @@ See:
 - [Ingestion framework](docs/ingestion-framework.md)
 - [Australian connectors](docs/australian-connectors.md)
 - [Global connectors](docs/global-connectors.md)
+- [Daily brief schema](docs/daily-brief-schema.md)
 
 ## Features
 
@@ -44,6 +45,8 @@ See:
   exports, and disabled ASX/Market Index placeholders.
 - Global macro/news connector scaffolding for FRED, World Bank, GDELT, NewsAPI, and disabled
   IMF/OECD/Bloomberg/Reuters placeholders.
+- Daily public market-intelligence brief schema with first-class source citations and
+  short-snippet validation.
 
 ## Install
 
@@ -148,6 +151,9 @@ The report is validated as a `MarketInsightReport`. A compact example:
 See [examples/market_insight_report.json](examples/market_insight_report.json) for a
 fuller validated example.
 
+See [examples/daily_market_brief.json](examples/daily_market_brief.json) for the Pivot 2
+daily market-intelligence brief shape.
+
 ## Architecture
 
 ```mermaid
@@ -177,6 +183,7 @@ Core modules:
   disabled placeholders.
 - `global_connectors.py`: defines global macro/news connectors, credential config, and
   licensed-source placeholders.
+- `daily_brief_schema.py`: defines the structured daily public market-intelligence brief.
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.

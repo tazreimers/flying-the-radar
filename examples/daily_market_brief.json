@@ -1,0 +1,387 @@
+{
+  "briefing_date": "2026-05-12",
+  "generated_at": "2026-05-12T06:30:00+08:00",
+  "title": "Daily Market Intelligence Brief - 12 May 2026",
+  "executive_summary": "Markets enter the session with a mixed tone as Australian rate expectations, US yield moves, and commodity demand signals remain the main cross-currents.",
+  "yesterday_recap": {
+    "title": "Yesterday Recap",
+    "summary": "Australian macro headlines kept rates in focus while global markets watched US yield direction.",
+    "bullets": [
+      "RBA commentary kept monetary policy sensitivity high.",
+      "US yield data remained a key global risk driver."
+    ],
+    "stance": "mixed",
+    "citations": [
+      {
+        "citation_id": "rba-policy",
+        "source_id": "rba-rss",
+        "source_name": "Reserve Bank of Australia RSS",
+        "title": "Statement by the Monetary Policy Board",
+        "url": "https://www.rba.gov.au/media-releases/2026/mr-26-12.html",
+        "published_at": "2026-05-05T04:30:00+00:00",
+        "retrieved_at": "2026-05-12T06:25:00+08:00",
+        "snippet": "The Board left the cash rate target unchanged.",
+        "terms_url": "https://www.rba.gov.au/copyright/",
+        "licence_notes": "Official RBA RSS material with attribution preserved."
+      }
+    ]
+  },
+  "day_ahead": {
+    "title": "Day Ahead",
+    "summary": "The session focus is on upcoming inflation data, central-bank signals, and commodity-market headlines.",
+    "bullets": [
+      "Watch Australian rates-sensitive sectors around CPI commentary.",
+      "Global macro focus remains on US yields and inflation expectations."
+    ],
+    "stance": "unclear",
+    "citations": [
+      {
+        "citation_id": "fred-us10y",
+        "source_id": "fred-api",
+        "source_name": "FRED API",
+        "title": "DGS10 observation",
+        "url": "https://fred.stlouisfed.org/series/DGS10",
+        "published_at": "2026-05-01T00:00:00+00:00",
+        "retrieved_at": "2026-05-12T06:24:00+08:00",
+        "snippet": "US 10-year Treasury yield observation was 4.33.",
+        "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+        "licence_notes": "FRED API terms and attribution preserved."
+      }
+    ]
+  },
+  "market_stance": "mixed",
+  "top_themes": [
+    {
+      "title": "Rates Remain The Main Macro Driver",
+      "summary": "Policy-sensitive sectors remain exposed to changes in inflation and bond-yield expectations.",
+      "stance": "mixed",
+      "affected_assets": [
+        {
+          "name": "Australian Dollar",
+          "ticker": "AUD",
+          "asset_type": "currency",
+          "region": "Australia",
+          "stance": "unclear",
+          "rationale": "Sensitive to relative rate expectations and commodity sentiment.",
+          "citations": [
+            {
+              "citation_id": "rba-policy",
+              "source_id": "rba-rss",
+              "source_name": "Reserve Bank of Australia RSS",
+              "title": "Statement by the Monetary Policy Board",
+              "url": "https://www.rba.gov.au/media-releases/2026/mr-26-12.html",
+              "published_at": "2026-05-05T04:30:00+00:00",
+              "retrieved_at": "2026-05-12T06:25:00+08:00",
+              "snippet": "The Board left the cash rate target unchanged.",
+              "terms_url": "https://www.rba.gov.au/copyright/",
+              "licence_notes": "Official RBA RSS material with attribution preserved."
+            }
+          ]
+        }
+      ],
+      "citations": [
+        {
+          "citation_id": "fred-us10y",
+          "source_id": "fred-api",
+          "source_name": "FRED API",
+          "title": "DGS10 observation",
+          "url": "https://fred.stlouisfed.org/series/DGS10",
+          "published_at": "2026-05-01T00:00:00+00:00",
+          "retrieved_at": "2026-05-12T06:24:00+08:00",
+          "snippet": "US 10-year Treasury yield observation was 4.33.",
+          "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+          "licence_notes": "FRED API terms and attribution preserved."
+        }
+      ]
+    }
+  ],
+  "australia_market": {
+    "title": "Australia Market",
+    "summary": "Australian market attention is on rates, banks, resources, and domestic macro releases.",
+    "bullets": [
+      "Rates-sensitive equities remain exposed to policy communication.",
+      "Resources sentiment is tied to China demand and commodity price headlines."
+    ],
+    "stance": "mixed",
+    "citations": [
+      {
+        "citation_id": "rba-policy",
+        "source_id": "rba-rss",
+        "source_name": "Reserve Bank of Australia RSS",
+        "title": "Statement by the Monetary Policy Board",
+        "url": "https://www.rba.gov.au/media-releases/2026/mr-26-12.html",
+        "published_at": "2026-05-05T04:30:00+00:00",
+        "retrieved_at": "2026-05-12T06:25:00+08:00",
+        "snippet": "The Board left the cash rate target unchanged.",
+        "terms_url": "https://www.rba.gov.au/copyright/",
+        "licence_notes": "Official RBA RSS material with attribution preserved."
+      }
+    ]
+  },
+  "global_macro": {
+    "title": "Global Macro",
+    "summary": "US yields and inflation expectations remain the dominant global macro watchpoints.",
+    "bullets": [
+      "Bond-market moves continue to influence equity duration risk.",
+      "Macro data should be checked against primary sources before publication."
+    ],
+    "stance": "neutral",
+    "citations": [
+      {
+        "citation_id": "fred-us10y",
+        "source_id": "fred-api",
+        "source_name": "FRED API",
+        "title": "DGS10 observation",
+        "url": "https://fred.stlouisfed.org/series/DGS10",
+        "published_at": "2026-05-01T00:00:00+00:00",
+        "retrieved_at": "2026-05-12T06:24:00+08:00",
+        "snippet": "US 10-year Treasury yield observation was 4.33.",
+        "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+        "licence_notes": "FRED API terms and attribution preserved."
+      }
+    ]
+  },
+  "commodities": {
+    "title": "Commodities",
+    "summary": "Commodity sentiment is mixed, with energy and copper headlines relevant for Australian resource names.",
+    "bullets": [
+      "Commodity-linked equity readthrough should stay general and source-backed."
+    ],
+    "stance": "mixed",
+    "citations": [
+      {
+        "citation_id": "gdelt-copper",
+        "source_id": "gdelt-api",
+        "source_name": "GDELT DOC 2.0 API",
+        "title": "Copper rises as China demand improves",
+        "url": "https://example.test/commodities-copper",
+        "published_at": "2026-05-11T12:00:00+00:00",
+        "retrieved_at": "2026-05-12T06:20:00+08:00",
+        "snippet": "Copper rose as China demand improved.",
+        "licence_notes": "Article metadata and link retained; no full article text reproduced."
+      }
+    ]
+  },
+  "currencies_and_rates": {
+    "title": "Currencies And Rates",
+    "summary": "Currencies and rates remain sensitive to relative central-bank expectations.",
+    "bullets": [
+      "AUD direction is likely to remain tied to local rates and commodity tone."
+    ],
+    "stance": "unclear",
+    "citations": [
+      {
+        "citation_id": "fred-us10y",
+        "source_id": "fred-api",
+        "source_name": "FRED API",
+        "title": "DGS10 observation",
+        "url": "https://fred.stlouisfed.org/series/DGS10",
+        "published_at": "2026-05-01T00:00:00+00:00",
+        "retrieved_at": "2026-05-12T06:24:00+08:00",
+        "snippet": "US 10-year Treasury yield observation was 4.33.",
+        "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+        "licence_notes": "FRED API terms and attribution preserved."
+      }
+    ]
+  },
+  "watchlist_impacts": [
+    {
+      "asset": {
+        "name": "ASX 200 Resources",
+        "asset_type": "sector",
+        "region": "Australia",
+        "stance": "mixed",
+        "rationale": "Commodity headlines may affect sentiment toward resource shares.",
+        "citations": [
+          {
+            "citation_id": "gdelt-copper",
+            "source_id": "gdelt-api",
+            "source_name": "GDELT DOC 2.0 API",
+            "title": "Copper rises as China demand improves",
+            "url": "https://example.test/commodities-copper",
+            "published_at": "2026-05-11T12:00:00+00:00",
+            "retrieved_at": "2026-05-12T06:20:00+08:00",
+            "snippet": "Copper rose as China demand improved.",
+            "licence_notes": "Article metadata and link retained; no full article text reproduced."
+          }
+        ]
+      },
+      "impact_summary": "Resource-sector sentiment may be sensitive to commodity demand headlines.",
+      "stance": "mixed",
+      "drivers": [
+        "Copper demand headlines",
+        "China growth expectations"
+      ],
+      "citations": [
+        {
+          "citation_id": "gdelt-copper",
+          "source_id": "gdelt-api",
+          "source_name": "GDELT DOC 2.0 API",
+          "title": "Copper rises as China demand improves",
+          "url": "https://example.test/commodities-copper",
+          "published_at": "2026-05-11T12:00:00+00:00",
+          "retrieved_at": "2026-05-12T06:20:00+08:00",
+          "snippet": "Copper rose as China demand improved.",
+          "licence_notes": "Article metadata and link retained; no full article text reproduced."
+        }
+      ]
+    }
+  ],
+  "calendar": [
+    {
+      "event_date": "2026-05-12",
+      "title": "US inflation data watch",
+      "event_type": "economic_release",
+      "region": "United States",
+      "time_label": "Overnight Perth time",
+      "importance": "high",
+      "expected_readthrough": "Could influence bond yields and equity risk appetite.",
+      "citations": [
+        {
+          "citation_id": "fred-us10y",
+          "source_id": "fred-api",
+          "source_name": "FRED API",
+          "title": "DGS10 observation",
+          "url": "https://fred.stlouisfed.org/series/DGS10",
+          "published_at": "2026-05-01T00:00:00+00:00",
+          "retrieved_at": "2026-05-12T06:24:00+08:00",
+          "snippet": "US 10-year Treasury yield observation was 4.33.",
+          "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+          "licence_notes": "FRED API terms and attribution preserved."
+        }
+      ]
+    }
+  ],
+  "macro_events": [
+    {
+      "event_name": "US 10-Year Treasury Yield",
+      "region": "United States",
+      "indicator": "DGS10",
+      "actual": "4.33",
+      "event_time": "2026-05-01T00:00:00+00:00",
+      "importance": "high",
+      "market_readthrough": "Higher yields can pressure duration-sensitive equities.",
+      "citations": [
+        {
+          "citation_id": "fred-us10y",
+          "source_id": "fred-api",
+          "source_name": "FRED API",
+          "title": "DGS10 observation",
+          "url": "https://fred.stlouisfed.org/series/DGS10",
+          "published_at": "2026-05-01T00:00:00+00:00",
+          "retrieved_at": "2026-05-12T06:24:00+08:00",
+          "snippet": "US 10-year Treasury yield observation was 4.33.",
+          "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+          "licence_notes": "FRED API terms and attribution preserved."
+        }
+      ]
+    }
+  ],
+  "risks": [
+    {
+      "description": "A hotter inflation print could lift yields and weigh on risk assets.",
+      "severity": "medium",
+      "affected_assets": [
+        {
+          "name": "Growth Equities",
+          "asset_type": "sector",
+          "stance": "bearish",
+          "rationale": "Higher yields can reduce valuation support for longer-duration equities.",
+          "citations": [
+            {
+              "citation_id": "fred-us10y",
+              "source_id": "fred-api",
+              "source_name": "FRED API",
+              "title": "DGS10 observation",
+              "url": "https://fred.stlouisfed.org/series/DGS10",
+              "published_at": "2026-05-01T00:00:00+00:00",
+              "retrieved_at": "2026-05-12T06:24:00+08:00",
+              "snippet": "US 10-year Treasury yield observation was 4.33.",
+              "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+              "licence_notes": "FRED API terms and attribution preserved."
+            }
+          ]
+        }
+      ],
+      "watch_items": [
+        "US inflation data",
+        "US 10-year yield"
+      ],
+      "citations": [
+        {
+          "citation_id": "fred-us10y",
+          "source_id": "fred-api",
+          "source_name": "FRED API",
+          "title": "DGS10 observation",
+          "url": "https://fred.stlouisfed.org/series/DGS10",
+          "published_at": "2026-05-01T00:00:00+00:00",
+          "retrieved_at": "2026-05-12T06:24:00+08:00",
+          "snippet": "US 10-year Treasury yield observation was 4.33.",
+          "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+          "licence_notes": "FRED API terms and attribution preserved."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "citation_id": "rba-policy",
+      "source_id": "rba-rss",
+      "source_name": "Reserve Bank of Australia RSS",
+      "title": "Statement by the Monetary Policy Board",
+      "url": "https://www.rba.gov.au/media-releases/2026/mr-26-12.html",
+      "published_at": "2026-05-05T04:30:00+00:00",
+      "retrieved_at": "2026-05-12T06:25:00+08:00",
+      "snippet": "The Board left the cash rate target unchanged.",
+      "terms_url": "https://www.rba.gov.au/copyright/",
+      "licence_notes": "Official RBA RSS material with attribution preserved."
+    },
+    {
+      "citation_id": "fred-us10y",
+      "source_id": "fred-api",
+      "source_name": "FRED API",
+      "title": "DGS10 observation",
+      "url": "https://fred.stlouisfed.org/series/DGS10",
+      "published_at": "2026-05-01T00:00:00+00:00",
+      "retrieved_at": "2026-05-12T06:24:00+08:00",
+      "snippet": "US 10-year Treasury yield observation was 4.33.",
+      "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+      "licence_notes": "FRED API terms and attribution preserved."
+    },
+    {
+      "citation_id": "gdelt-copper",
+      "source_id": "gdelt-api",
+      "source_name": "GDELT DOC 2.0 API",
+      "title": "Copper rises as China demand improves",
+      "url": "https://example.test/commodities-copper",
+      "published_at": "2026-05-11T12:00:00+00:00",
+      "retrieved_at": "2026-05-12T06:20:00+08:00",
+      "snippet": "Copper rose as China demand improved.",
+      "licence_notes": "Article metadata and link retained; no full article text reproduced."
+    }
+  ],
+  "verification_flags": [
+    {
+      "claim": "US 10-year Treasury yield observation was 4.33.",
+      "reason": "Macro datapoints should be verified against the primary dataset before publication.",
+      "priority": "medium",
+      "suggested_source": "FRED DGS10 series",
+      "citations": [
+        {
+          "citation_id": "fred-us10y",
+          "source_id": "fred-api",
+          "source_name": "FRED API",
+          "title": "DGS10 observation",
+          "url": "https://fred.stlouisfed.org/series/DGS10",
+          "published_at": "2026-05-01T00:00:00+00:00",
+          "retrieved_at": "2026-05-12T06:24:00+08:00",
+          "snippet": "US 10-year Treasury yield observation was 4.33.",
+          "terms_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+          "licence_notes": "FRED API terms and attribution preserved."
+        }
+      ]
+    }
+  ],
+  "confidence_score": 0.72,
+  "disclaimer": "This briefing summarizes factual market information and general market commentary from identified sources. It is not financial, investment, tax, legal, or accounting advice."
+}
