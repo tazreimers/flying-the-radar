@@ -29,6 +29,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Private research architecture](docs/private-research-architecture.md)
 - [Private research policy](docs/private-research-policy.md)
 - [Private ingestion](docs/private-ingestion.md)
+- [Private research schema](docs/private-research-schema.md)
 - [Optional Under the Radar connector stub](docs/private-undertheradar-connector.md)
 - [Private research settings and storage](docs/private-research-storage.md)
 
@@ -50,6 +51,10 @@ The private research workflow can import user-provided subscribed PDFs, local fi
 saved HTML/text/email files, and manual pasted text into a separate local SQLite store. It can
 list those documents and produce a local placeholder summary for one imported document without
 scraping a logged-in website.
+
+The private recommendation schema captures company/ticker ratings, thesis points, risks,
+catalysts, valuation notes, numbers to verify, and short source excerpts without storing full
+subscribed articles or reports.
 
 An optional Under the Radar connector stub exists for future personal automation design. It is
 disabled by default, requires explicit environment and terms gates, and still refuses to perform
@@ -278,6 +283,7 @@ Core modules:
 - `daily_brief_config.py`: TOML configuration and validation.
 - `daily_brief_runner.py`: configured ingestion, synthesis, output writing, and dry-run email.
 - `private_ingestion.py`: private PDFs, local files, saved emails, and manual text imports.
+- `private_research_schema.py`: structured private stock recommendation schema.
 - `private_research_storage.py`: local SQLite store for private documents, summaries, citations.
 - `private_settings.py`: local-only private settings, retention, and password hash references.
 - `private_undertheradar_connector.py`: disabled connector stub and safety gates.

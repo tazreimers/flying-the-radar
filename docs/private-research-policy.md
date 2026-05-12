@@ -62,3 +62,7 @@ Every private document should retain:
 Private summaries may extract factual report content, recommendation labels, risks, valuation
 assumptions, catalysts, and watch items from a source document. They must not tell the user what
 to buy, sell, hold, rebalance, or trade based on the user's personal circumstances.
+
+Structured private recommendation outputs should use short source excerpts, cite the local
+document/page/section when available, and treat personal next steps as research questions rather
+than trading instructions.

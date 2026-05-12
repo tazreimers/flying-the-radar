@@ -1,0 +1,172 @@
+{
+  "document_id": "private-example-2026-05-12",
+  "source_name": "Under the Radar",
+  "document_title": "Under the Radar Small-Cap Note",
+  "issue_date": "2026-05-12",
+  "source_type": "pdf",
+  "original_filename": "under-the-radar-sample.pdf",
+  "document_summary": "The note reiterates a speculative buy rating on Example Resources while highlighting funding, execution, and quarterly update risks.",
+  "recommendations": [
+    {
+      "recommendation_id": "rec-exr-2026-05-12",
+      "company_name": "Example Resources",
+      "ticker": "EXR",
+      "exchange": "ASX",
+      "recommendation": "Speculative Buy",
+      "source_rating": "Speculative Buy",
+      "stated_target_price": 1.35,
+      "target_price_currency": "AUD",
+      "stated_valuation": "Target price based on staged project delivery.",
+      "recommendation_date": "2026-05-12",
+      "time_horizon": "12 months",
+      "thesis": "The source expects project milestones to improve market confidence.",
+      "thesis_points": [
+        {
+          "point": "Project delivery is the main thesis driver.",
+          "stance": "bullish",
+          "evidence_summary": "Milestones are framed as valuation support.",
+          "confidence_score": 0.72
+        }
+      ],
+      "bullish_arguments": [
+        {
+          "point": "Upcoming project milestones could support sentiment.",
+          "stance": "bullish",
+          "confidence_score": 0.7
+        }
+      ],
+      "bearish_arguments": [
+        {
+          "point": "Funding and execution remain key uncertainties.",
+          "stance": "bearish",
+          "confidence_score": 0.68
+        }
+      ],
+      "risks": [
+        {
+          "risk": "Project delays could pressure the valuation case.",
+          "severity": "medium",
+          "affected_metric": "target price",
+          "confidence_score": 0.7
+        }
+      ],
+      "catalysts": [
+        {
+          "catalyst": "Quarterly project update",
+          "expected_timing": "next quarter",
+          "direction": "positive",
+          "confidence_score": 0.64
+        }
+      ],
+      "valuation_notes": [
+        {
+          "valuation_summary": "The source states a AUD 1.35 target price.",
+          "method": "project milestone valuation",
+          "stated_target_price": 1.35,
+          "currency": "AUD",
+          "assumptions": [
+            "Milestones arrive on schedule."
+          ],
+          "numbers_to_verify": [
+            {
+              "value": "AUD 1.35",
+              "context": "Stated source target price.",
+              "suggested_check": "Check against the original report.",
+              "confidence_score": 0.75
+            }
+          ],
+          "confidence_score": 0.72
+        }
+      ],
+      "valuation_assumptions": [
+        "Milestones arrive on schedule."
+      ],
+      "recommendation_changes": [
+        {
+          "change_type": "reiterated",
+          "new_rating": "Speculative Buy",
+          "new_target_price": 1.35,
+          "currency": "AUD",
+          "change_date": "2026-05-12",
+          "reason": "The rating was reiterated in the source note.",
+          "confidence_score": 0.7
+        }
+      ],
+      "portfolio_watch_items": [
+        {
+          "item_id": "watch-exr-update",
+          "company_name": "Example Resources",
+          "ticker": "EXR",
+          "exchange": "ASX",
+          "watch_reason": "Track whether project milestones arrive.",
+          "trigger_to_watch": "Quarterly update",
+          "status": "watch",
+          "confidence_score": 0.7
+        }
+      ],
+      "numbers_to_verify": [
+        {
+          "value": "AUD 1.35",
+          "context": "Target price.",
+          "suggested_check": "Check source PDF and current market data.",
+          "confidence_score": 0.75
+        }
+      ],
+      "source_citation": {
+        "excerpt_id": "exr-rating-page-2",
+        "document_id": "private-example-2026-05-12",
+        "source_name": "Under the Radar",
+        "document_title": "Under the Radar Small-Cap Note",
+        "page_number": 2,
+        "section": "Recommendation",
+        "excerpt": "Speculative buy rating with a stated AUD 1.35 target.",
+        "kind": "paraphrase"
+      },
+      "confidence_score": 0.72
+    }
+  ],
+  "portfolio_watch_items": [
+    {
+      "item_id": "watch-exr-position-risk",
+      "company_name": "Example Resources",
+      "ticker": "EXR",
+      "exchange": "ASX",
+      "watch_reason": "Review exposure if funding risk increases.",
+      "trigger_to_watch": "Capital raising update",
+      "status": "monitor",
+      "confidence_score": 0.65
+    }
+  ],
+  "source_excerpts": [
+    {
+      "excerpt_id": "exr-rating-page-2",
+      "document_id": "private-example-2026-05-12",
+      "source_name": "Under the Radar",
+      "document_title": "Under the Radar Small-Cap Note",
+      "page_number": 2,
+      "section": "Recommendation",
+      "excerpt": "Speculative buy rating with a stated AUD 1.35 target.",
+      "kind": "paraphrase"
+    }
+  ],
+  "numbers_to_verify": [
+    {
+      "value": "AUD 1.35",
+      "context": "Target price cited in the source note.",
+      "suggested_check": "Verify against the original report and market price.",
+      "confidence_score": 0.75
+    }
+  ],
+  "personal_action_questions": [
+    {
+      "question_id": "q-exr-risk-fit",
+      "question": "What portfolio risk would this position add?",
+      "why_it_matters": "The source highlights execution and funding risks.",
+      "related_ticker": "EXR",
+      "related_recommendation_id": "rec-exr-2026-05-12",
+      "confidence_score": 0.7
+    }
+  ],
+  "confidence_score": 0.72,
+  "disclaimer": "Private research summary for personal use only. It is not personal financial advice and must not be redistributed."
+}
