@@ -10,17 +10,19 @@ import tempfile
 import unittest
 
 from market_pdf_insights.cli import main
+from tests.pdf_fixtures import has_pymupdf, write_sample_pdf
 
 
 class CliTests(unittest.TestCase):
     """Coverage for the summarize command."""
 
+    @unittest.skipUnless(has_pymupdf(), "PyMuPDF is not installed")
     def test_summarize_outputs_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             pdf_path = Path(tmp_dir) / "research.pdf"
-            pdf_path.write_text(
-                "ABC reports earnings growth. Risks include inflation and rate pressure.",
-                encoding="utf-8",
+            write_sample_pdf(
+                pdf_path,
+                ["ABC reports earnings growth. Risks include inflation and rate pressure."],
             )
             stdout = io.StringIO()
 
@@ -36,4 +38,3 @@ class CliTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
