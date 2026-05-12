@@ -1,25 +1,15 @@
 # Market PDF Insights
 
-`market-pdf-insights` turns stock market commentary and financial research PDFs into
-structured summaries. It extracts PDF text with PyMuPDF, chunks long documents, validates
-outputs with Pydantic, and can summarize through either a deterministic local placeholder
-or the OpenAI API.
+`market-pdf-insights` is a public market-intelligence briefing app plus a PDF research
+summarizer. The Pivot 2 MVP builds a daily market brief from permitted inputs, preserves
+source citations, flags claims for verification, renders JSON/Markdown/HTML/text outputs, and
+can write dry-run email files without sending real email.
 
-The project is intended for document review and research workflow automation. It does not
-provide investment recommendations.
-
-## Pivot 2: Daily Market Intelligence
-
-The next product direction is a public daily market-intelligence brief built from permitted
-sources only: official APIs, RSS feeds, licensed data providers, user-provided files, or
-email/manual ingestion. The app must not scrape sites that prohibit automated access, bypass
-paywalls, or redistribute copyrighted source material.
-
-This branch is scoped to factual information and general market commentary. It should not
-personalize output to a user's objectives, financial situation, or needs, and it should not
+The daily brief is scoped to factual information and general market commentary. It does not
+personalize output to a user's objectives, financial situation, or needs, and it must not
 provide buy/sell/hold recommendations.
 
-See:
+## Documentation
 
 - [Market intelligence architecture](docs/market-intelligence-architecture.md)
 - [Source policy](docs/source-policy.md)
@@ -31,31 +21,54 @@ See:
 - [Daily brief synthesis](docs/daily-brief-synthesis.md)
 - [Daily brief rendering](docs/daily-brief-rendering.md)
 - [Daily brief operations](docs/daily-brief-operations.md)
+- [Deployment guide](docs/deployment.md)
 
-## Features
+## Product Overview
 
-- PDF text extraction with page markers and clear PDF loading errors.
-- Overlapping text chunking for long reports.
-- Pydantic `MarketInsightReport` output with claims, risks, assets, macro assumptions,
-  numbers to verify, stance, confidence, and finance-specific fields.
-- CLI output with a clean terminal summary, optional JSON file, and optional Markdown file.
-- Streamlit app for daily brief review, source status, citations, downloads, and PDF report
-  upload/review.
-- OpenAI-backed summarization with JSON validation and retry handling.
-- Placeholder and mock clients for local development and tests.
-- Public-source ingestion framework with RSS, JSON API, local fixture, deduplication, and
-  JSONL cache support.
-- Australia-specific connector scaffolding for RBA RSS, ABS Data API/exports, permitted ASIC
-  exports, and disabled ASX/Market Index placeholders.
-- Global macro/news connector scaffolding for FRED, World Bank, GDELT, NewsAPI, and disabled
-  IMF/OECD/Bloomberg/Reuters placeholders.
-- Daily public market-intelligence brief schema with first-class source citations and
-  short-snippet validation.
-- LLM synthesis layer for grouped source notes and final validated daily briefs.
-- Daily brief rendering to JSON, Markdown, HTML, plain text, terminal summary, and dry-run
-  email output.
-- Daily brief CLI operations for TOML config validation, source status, fixture-backed runs,
-  rendered outputs, and dry-run email files.
+The daily market-intelligence workflow:
+
+1. Loads source items from legal APIs, RSS feeds, licensed feeds, user-provided files, or local
+   fixtures.
+2. Normalizes each item with attribution, terms metadata, timestamps, URLs, and tickers.
+3. Deduplicates items and optionally stores them in a JSONL cache.
+4. Synthesizes a validated `DailyMarketBrief` with a placeholder/mock client or OpenAI.
+5. Renders dashboard, terminal, JSON, Markdown, HTML, plain text, and dry-run email output.
+
+The original PDF workflow remains available for summarizing individual research PDFs into
+structured `MarketInsightReport` output.
+
+## Source Policy
+
+Allowed input patterns:
+
+- official APIs;
+- RSS feeds where automated access is permitted;
+- paid or licensed feeds where the licence permits this use;
+- user-provided files, exports, forwarded emails, or manual notes.
+
+Do not scrape Bloomberg, Reuters, TradingView, Market Index, ASX pages, or similar sites unless
+the specific access pattern is permitted by licence, API terms, written permission, or a
+documented user export. Do not bypass logins, paywalls, bot controls, rate limits, or technical
+access restrictions. Do not store or redistribute full copyrighted articles or paid reports.
+
+## Supported Sources
+
+The registry is conservative. Many sources are disabled until credentials, endpoint scope,
+licence terms, and rate limits are configured.
+
+| Source | Status | Access path |
+| --- | --- | --- |
+| Local fixtures/user files | Enabled for mock mode | `LocalFixtureConnector`, `MockConnector` |
+| RBA RSS | Connector available | Official RSS feed |
+| ABS | Connector available | Official ABS API or user export |
+| ASIC media | Gated | Permitted API/feed/export only |
+| FRED | Connector available | Official API with `FRED_API_KEY` |
+| World Bank | Connector available | Official API |
+| GDELT | Connector available | Public API metadata/links |
+| NewsAPI | Connector available | API with `NEWSAPI_KEY` |
+| ASX, Market Index | Disabled by default | Licensed API/feed or user export only |
+| Bloomberg, Reuters | Disabled by default | Licensed feed/export only |
+| TradingView | Disabled by default | Alerts, exports, embeds, or permitted API only |
 
 ## Install
 
@@ -65,42 +78,34 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Copy the environment example if you plan to use the OpenAI backend:
+Copy the environment example if you plan to use hosted LLMs or credentialed connectors:
 
 ```bash
 cp .env.example .env
 ```
 
-The app does not auto-load `.env`; export variables in your shell or load them with your
-own environment tooling.
+The app does not auto-load `.env`; export variables in your shell or load them with your own
+environment tooling.
 
-## CLI Usage
+## Environment Variables
 
-Print a concise terminal summary:
+| Variable | Required for | Notes |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | `--llm openai` | Billed to the OpenAI account/project that owns the key. |
+| `MARKET_PDF_INSIGHTS_MODEL` | Optional | Overrides the default OpenAI model. |
+| `FRED_API_KEY` | FRED connector | Keep in the environment or scheduler secret store. |
+| `NEWSAPI_KEY` | NewsAPI connector | Keep in the environment or scheduler secret store. |
 
-```bash
-market-pdf-insights summarize reports/small-caps-report-issue-700.pdf
-```
+No API key is hardcoded. Tests clear these environment variables and use fake clients,
+fixtures, and mocks.
 
-Save the full structured JSON:
+## CLI Examples
 
-```bash
-market-pdf-insights summarize reports/small-caps-report-issue-700.pdf \
-  --output report.json
-```
-
-Save JSON and Markdown:
-
-```bash
-market-pdf-insights summarize reports/small-caps-report-issue-700.pdf \
-  --output report.json \
-  --markdown report.md
-```
-
-Run a fixture-backed daily market brief:
+Run the fixture-backed public daily brief with no live APIs:
 
 ```bash
 market-pdf-insights brief validate-config --config examples/daily_brief_config.toml
+market-pdf-insights brief sources --config examples/daily_brief_config.toml
 market-pdf-insights brief run \
   --config examples/daily_brief_config.toml \
   --date 2026-05-12 \
@@ -109,7 +114,7 @@ market-pdf-insights brief run \
   --html outputs/daily-brief.html
 ```
 
-Write a dry-run email file:
+Write a dry-run email file without sending:
 
 ```bash
 market-pdf-insights brief send \
@@ -118,27 +123,25 @@ market-pdf-insights brief send \
   --email-dry-run outputs/daily-brief.eml
 ```
 
-Control chunk size:
-
-```bash
-market-pdf-insights summarize reports/small-caps-report-issue-700.pdf \
-  --max-chars 6000
-```
-
-Use OpenAI instead of the default placeholder backend:
+Use OpenAI for daily brief synthesis:
 
 ```bash
 export OPENAI_API_KEY="..."
-market-pdf-insights summarize reports/small-caps-report-issue-700.pdf \
+market-pdf-insights brief run \
+  --config examples/daily_brief_config.toml \
   --llm openai \
-  --model gpt-4.1-mini \
-  --output report.json
+  --model gpt-4.1-mini
 ```
 
-The account billed is the OpenAI account or project associated with the `OPENAI_API_KEY`
-in your environment. No API key is hardcoded, and tests use fake or mock clients.
+Summarize a PDF report:
 
-## Streamlit App
+```bash
+market-pdf-insights summarize reports/small-caps-report-issue-700.pdf \
+  --output report.json \
+  --markdown report.md
+```
+
+## Streamlit Dashboard
 
 Run the web app locally:
 
@@ -146,142 +149,150 @@ Run the web app locally:
 streamlit run src/market_pdf_insights/streamlit_app.py
 ```
 
-The app opens with a daily brief dashboard backed by `examples/daily_brief_config.toml` and
-`examples/daily_market_brief.json`, so it can render a fixture brief without live APIs. It also
-keeps the PDF upload workflow for summarizing individual reports.
+The dashboard opens with the daily brief workflow backed by
+`examples/daily_brief_config.toml` and `examples/daily_market_brief.json`, so it can render a
+fixture brief without live APIs. It shows source status, disabled-source compliance notes,
+executive summary, recap/day-ahead, themes, risks, watchlist impacts, citations, verification
+flags, and JSON/Markdown/HTML downloads. A second tab keeps the PDF upload workflow.
 
-## Output Shape
+## Email
 
-The report is validated as a `MarketInsightReport`. A compact example:
+Current email support is intentionally dry-run only. `DailyBriefEmailSettings` stores sender,
+recipient, subject prefix, and reply-to envelope settings. `DryRunDailyBriefEmailWriter` writes
+`.eml` or text/HTML files locally. A future sender can implement `DailyBriefEmailSender` for
+SMTP or a provider API, with credentials supplied by environment variables or a secret store.
 
-```json
-{
-  "document_title": "Research Note",
-  "executive_summary": "...",
-  "market_stance": "mixed",
-  "investment_thesis": "...",
-  "bullish_arguments": [],
-  "bearish_arguments": [],
-  "valuation_assumptions": [],
-  "time_horizon": "medium term",
-  "catalysts": [],
-  "key_claims": [],
-  "supporting_evidence": [],
-  "risks": [],
-  "sectors_mentioned": [],
-  "companies_or_tickers_mentioned": [],
-  "macro_assumptions": [],
-  "numbers_to_verify": [],
-  "unanswered_questions": [],
-  "confidence_score": 0.35,
-  "source_file": "path/to/file.pdf",
-  "metadata": {}
-}
+## Scheduling
+
+Use an external scheduler; the app does not run a background daemon.
+
+Cron example:
+
+```cron
+15 7 * * 1-5 cd /path/to/flying-the-radar && \
+  MARKET_PDF_INSIGHTS_MODEL=gpt-4.1-mini \
+  market-pdf-insights brief run --config daily-brief.toml
 ```
 
-See [examples/market_insight_report.json](examples/market_insight_report.json) for a
-fuller validated example.
+GitHub Actions example:
 
-See [examples/daily_market_brief.json](examples/daily_market_brief.json) for the Pivot 2
-daily market-intelligence brief shape.
+```yaml
+name: Daily market brief
+on:
+  schedule:
+    - cron: "15 21 * * 0-4"
+  workflow_dispatch:
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: market-pdf-insights brief run --config examples/daily_brief_config.toml
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+```
+
+Store credentials in the scheduler's secret manager, not in TOML, fixtures, docs, or source
+control.
+
+## Citations And Verification
+
+Daily brief citations live in `DailyMarketBrief.sources`. Nested sections reference those
+records by `citation_id`, and each citation preserves source name, title, URL, publication time,
+retrieval time, terms URL, licence notes, and a short snippet. The schema rejects nested
+citations that are missing from the top-level catalogue.
+
+Claims that need human review are stored in `DailyMarketBrief.verification_flags`. Numbers,
+dates, prices, forecasts, yields, legal/regulatory claims, and stale source items should be
+checked against primary sources before use.
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-    A[PDF file or Streamlit upload] --> B[pdf_loader.py]
-    B --> C[chunker.py]
-    C --> D{Summary client}
-    D --> E[PlaceholderLLMClient]
-    D --> F[OpenAISummaryClient]
-    F --> G[ChunkInsightNotes]
-    E --> H[MarketInsightReport]
-    G --> H
-    H --> I[report_rendering.py]
-    I --> J[Terminal summary]
-    I --> K[JSON report]
-    I --> L[Markdown report]
-    H --> M[Streamlit display]
+    A[Permitted APIs RSS licensed feeds fixtures] --> B[Source policy and config]
+    B --> C[Connectors]
+    C --> D[NormalizedMarketItem]
+    D --> E[Deduplication and JSONL cache]
+    E --> F{Daily brief client}
+    F --> G[MockBriefLLMClient]
+    F --> H[OpenAIDailyBriefClient]
+    G --> I[DailyMarketBrief]
+    H --> I
+    I --> J[Renderers]
+    J --> K[CLI terminal]
+    J --> L[JSON Markdown HTML text]
+    J --> M[Dry-run email]
+    J --> N[Streamlit dashboard]
+    O[PDF upload or file] --> P[pdf_loader and chunker]
+    P --> Q[PDF summary client]
+    Q --> R[MarketInsightReport]
+    R --> N
 ```
 
 Core modules:
 
-- `pdf_loader.py`: validates PDF paths and extracts ordered page text.
-- `chunker.py`: splits long text into overlapping chunks.
-- `insight_schema.py`: defines Pydantic report models.
-- `ingestion.py`: fetches, normalizes, deduplicates, and caches public source items.
-- `australian_connectors.py`: defines legal Australian market-intelligence connectors and
-  disabled placeholders.
-- `global_connectors.py`: defines global macro/news connectors, credential config, and
-  licensed-source placeholders.
-- `daily_brief_schema.py`: defines the structured daily public market-intelligence brief.
-- `daily_brief_synthesis.py`: synthesizes normalized source items into daily briefs.
-- `daily_brief_rendering.py`: renders daily briefs and writes dry-run email output.
-- `daily_brief_config.py`: loads and validates daily brief TOML configuration.
-- `daily_brief_runner.py`: runs configured ingestion, synthesis, rendering, and dry-run email.
-- `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
-- `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
-- `report_rendering.py`: renders terminal and Markdown summaries.
-- `source_policy.py`: defines Pivot 2 source-use and advice-boundary guardrails.
-- `source_registry.py`: centralizes public source metadata, credentials, and compliance checks.
-- `cli.py`: exposes the `market-pdf-insights` command.
-- `streamlit_app.py`: exposes the upload-and-summarize web app.
+- `source_policy.py`: source-use and advice-boundary guardrails.
+- `source_registry.py`: source metadata, credentials, capabilities, and compliance checks.
+- `ingestion.py`: connectors, normalization, deduplication, JSONL cache, and test mocks.
+- `australian_connectors.py`: RBA, ABS, ASIC scaffolding and disabled ASX/Market Index guards.
+- `global_connectors.py`: FRED, World Bank, GDELT, NewsAPI, and licensed-source placeholders.
+- `daily_brief_schema.py`: validated daily brief output contract.
+- `daily_brief_synthesis.py`: mock/OpenAI daily brief synthesis.
+- `daily_brief_rendering.py`: JSON, Markdown, HTML, text, terminal, and dry-run email rendering.
+- `daily_brief_config.py`: TOML configuration and validation.
+- `daily_brief_runner.py`: configured ingestion, synthesis, output writing, and dry-run email.
+- `cli.py`: `market-pdf-insights summarize` and `market-pdf-insights brief ...`.
+- `streamlit_app.py`: daily brief dashboard and PDF report tab.
 
 ## Development
 
-Run the test suite:
+Run tests and lint:
 
 ```bash
+PYTHONPATH=src python3 -m pytest
 PYTHONPATH=src python3 -m unittest discover -s tests
-python3 -m pytest
-```
-
-Run linting:
-
-```bash
 ruff check .
 ```
 
-Run the example API script:
-
-```bash
-python examples/summarize_pdf.py reports/small-caps-report-issue-700.pdf
-```
+The test suite is offline. It blocks live network calls, clears real API key environment
+variables, and uses fixture payloads plus mock clients.
 
 ## Limitations
 
-- The placeholder client is deterministic and heuristic-based; it is useful for tests and
-  local plumbing, not high-quality market analysis.
-- The OpenAI client depends on model output quality and validates structure, not factual
-  correctness.
-- Extracted PDF text quality depends on the source document. Scanned PDFs without OCR may
-  produce little or no useful text.
-- Numbers, dates, forecasts, prices, valuation claims, and market data should be verified
-  against primary sources.
-- Live market-data, filing, and news connectors are disabled until source-specific access
-  settings and terms are configured.
-- Daily brief email support currently renders and writes dry-run output only; SMTP or provider
-  credentials must be configured in a separate sender implementation later.
-- The Streamlit app stores uploaded PDFs only in temporary files during processing.
-- Pivot 2 connectors must use permitted APIs, RSS feeds, licensed sources, user-provided
-  content, or email/manual ingestion; prohibited scraping remains out of scope.
+- Placeholder and mock clients are deterministic and useful for tests/local plumbing, not
+  high-quality market analysis.
+- OpenAI output is schema-validated, but factual correctness still depends on source quality and
+  human verification.
+- Live source connectors require source-specific endpoint scope, credentials, rate limits, and
+  terms review before being enabled.
+- The app does not send email yet; only dry-run email files are written.
+- The app does not include a background scheduler.
+- Extracted PDF text quality depends on the source document; scanned PDFs without OCR may
+  produce little useful text.
+- Generated outputs can be incomplete, stale, or misleading.
 
 ## Financial Disclaimer
 
-This project summarizes and analyzes source documents. It is not financial, investment,
-tax, legal, or accounting advice. Outputs may be incomplete, inaccurate, stale, or
+This project summarizes source documents and public market information. It is not financial,
+investment, tax, legal, or accounting advice. Outputs may be incomplete, inaccurate, stale, or
 misleading. Do not make investment decisions based only on this tool. Always verify claims
 against primary sources and consult qualified professionals where appropriate.
 
 ## Contributing
 
-Contributions are welcome. Keep changes small, tested, and consistent with the current
-module boundaries.
+Keep changes small, tested, and consistent with the current module boundaries.
 
 Before opening a pull request:
 
 - Run `python3 -m pytest`.
 - Run `ruff check .`.
-- Avoid committing PDFs, generated reports, cache directories, or secrets.
-- Do not include real API keys in tests, fixtures, examples, or docs.
-- Prefer mock clients in tests so CI does not make live API calls.
+- Avoid committing generated outputs, cache directories, local PDFs, or secrets.
+- Do not include real API keys in tests, fixtures, examples, docs, or screenshots.
+- Prefer mock clients and fixture payloads so CI does not make live API calls.

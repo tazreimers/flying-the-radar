@@ -58,3 +58,29 @@ No background daemon is required. Use the operating environment to call the CLI 
 For hosted operation, the same command can be run from GitHub Actions, systemd timers, launchd,
 Windows Task Scheduler, or a container scheduler. Keep secrets in the scheduler's environment or
 secret store, not in TOML.
+
+Minimal GitHub Actions shape:
+
+```yaml
+name: Daily market brief
+on:
+  schedule:
+    - cron: "15 21 * * 0-4"
+  workflow_dispatch:
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: market-pdf-insights brief run --config daily-brief.toml
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+```
+
+See [Deployment Guide](deployment.md) for a fuller checklist.

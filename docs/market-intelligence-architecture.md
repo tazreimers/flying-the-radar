@@ -49,8 +49,19 @@ flowchart TD
 - Renderers: terminal, Markdown, JSON, HTML email, plain-text email.
 - Schedule: external cron/GitHub Actions/local task runner invoking CLI commands.
 
-## Current Step
+## Current MVP
 
-This step adds the guardrail and source policy foundation only. It intentionally does not
-fetch live market data, scrape websites, send email, or implement a scheduler.
+The Pivot 2 MVP includes:
 
+- source policy and registry guardrails;
+- public-source connector scaffolding and fixture/mock ingestion;
+- daily brief schema validation;
+- mock and OpenAI daily brief synthesis clients;
+- JSON, Markdown, HTML, text, terminal, and dry-run email renderers;
+- CLI commands for config validation, source status, brief runs, and dry-run email files;
+- a Streamlit dashboard for source review, fixture rendering, brief runs, citations,
+  verification flags, and downloads;
+- offline tests that block live network calls and real API keys.
+
+It still does not scrape prohibited sites, bypass access controls, send real email, or run a
+background scheduler.

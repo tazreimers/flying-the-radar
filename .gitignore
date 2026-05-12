@@ -20,8 +20,12 @@ env/
 .env.*
 !.env.example
 
+# Local generated outputs
+.cache/
+outputs/
+*.eml
+
 # OS/editor noise
 .DS_Store
 .idea/
 .vscode/
-
