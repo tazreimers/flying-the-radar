@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-pdf-insights"
+version = "0.1.0"
+description = "Structured summaries for stock market commentary and financial research PDFs."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Flying the Radar" }
+]
+dependencies = [
+    "pypdf>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+]
+[project.scripts]
+market-pdf-insights = "market_pdf_insights.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
