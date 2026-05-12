@@ -6,8 +6,20 @@ from pathlib import Path
 import tempfile
 import unittest
 
+from market_pdf_insights.daily_brief_config import load_daily_brief_config
+from market_pdf_insights.daily_brief_schema import DailyMarketBrief
 from market_pdf_insights.llm_client import MockLLMClient
-from market_pdf_insights.streamlit_app import summarize_uploaded_pdf
+from market_pdf_insights.streamlit_app import (
+    EXAMPLE_BRIEF_PATH,
+    EXAMPLE_CONFIG_PATH,
+    build_daily_brief_citation_rows,
+    build_daily_brief_downloads,
+    build_daily_brief_source_rows,
+    build_daily_brief_verification_rows,
+    build_daily_brief_watchlist_rows,
+    load_daily_brief_fixture,
+    summarize_uploaded_pdf,
+)
 from market_pdf_insights.summarizer import SummarizerConfig
 from tests.pdf_fixtures import has_pymupdf, write_sample_pdf
 
@@ -43,7 +55,46 @@ class StreamlitAppTests(unittest.TestCase):
                 config=SummarizerConfig(),
             )
 
+    def test_load_daily_brief_fixture_returns_valid_brief(self) -> None:
+        brief = load_daily_brief_fixture(EXAMPLE_BRIEF_PATH)
+
+        self.assertIsInstance(brief, DailyMarketBrief)
+        self.assertEqual(brief.briefing_date.isoformat(), "2026-05-12")
+        self.assertTrue(brief.sources)
+
+    def test_daily_brief_downloads_include_json_markdown_and_html(self) -> None:
+        brief = load_daily_brief_fixture(EXAMPLE_BRIEF_PATH)
+
+        downloads = build_daily_brief_downloads(brief)
+
+        self.assertEqual([download.label for download in downloads], ["JSON", "Markdown", "HTML"])
+        self.assertIn('"briefing_date"', downloads[0].content)
+        self.assertIn("## Executive Summary", downloads[1].content)
+        self.assertIn("<h2>Executive Summary</h2>", downloads[2].content)
+
+    def test_daily_brief_source_rows_include_disabled_compliance_notices(self) -> None:
+        config = load_daily_brief_config(EXAMPLE_CONFIG_PATH)
+
+        rows = build_daily_brief_source_rows(config)
+
+        local_fixture = next(row for row in rows if row["Source ID"] == "local-market-fixture")
+        market_index = next(row for row in rows if row["Source ID"] == "market-index")
+        self.assertEqual(local_fixture["Status"], "Enabled")
+        self.assertEqual(market_index["Status"], "Disabled")
+        self.assertIn("permission", market_index["Compliance Notes"].lower())
+        self.assertIn("licence", market_index["Compliance Notes"].lower())
+
+    def test_daily_brief_table_helpers_build_review_rows(self) -> None:
+        brief = load_daily_brief_fixture(EXAMPLE_BRIEF_PATH)
+
+        watchlist_rows = build_daily_brief_watchlist_rows(brief)
+        citation_rows = build_daily_brief_citation_rows(brief)
+        verification_rows = build_daily_brief_verification_rows(brief)
+
+        self.assertTrue(watchlist_rows)
+        self.assertEqual(citation_rows[0]["Citation ID"], "rba-policy")
+        self.assertEqual(verification_rows[0]["Priority"], "medium")
+
 
 if __name__ == "__main__":
     unittest.main()
-

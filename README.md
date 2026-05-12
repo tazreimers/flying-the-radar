@@ -39,7 +39,8 @@ See:
 - Pydantic `MarketInsightReport` output with claims, risks, assets, macro assumptions,
   numbers to verify, stance, confidence, and finance-specific fields.
 - CLI output with a clean terminal summary, optional JSON file, and optional Markdown file.
-- Streamlit app for upload, summary review, and report downloads.
+- Streamlit app for daily brief review, source status, citations, downloads, and PDF report
+  upload/review.
 - OpenAI-backed summarization with JSON validation and retry handling.
 - Placeholder and mock clients for local development and tests.
 - Public-source ingestion framework with RSS, JSON API, local fixture, deduplication, and
@@ -145,8 +146,9 @@ Run the web app locally:
 streamlit run src/market_pdf_insights/streamlit_app.py
 ```
 
-The app lets you upload a PDF, choose the placeholder or OpenAI backend, summarize the
-report, review the main fields, and download JSON or Markdown output.
+The app opens with a daily brief dashboard backed by `examples/daily_brief_config.toml` and
+`examples/daily_market_brief.json`, so it can render a fixture brief without live APIs. It also
+keeps the PDF upload workflow for summarizing individual reports.
 
 ## Output Shape
 
