@@ -36,6 +36,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Private research UI](docs/private-research-ui.md)
 - [Optional Under the Radar connector stub](docs/private-undertheradar-connector.md)
 - [Private research settings and storage](docs/private-research-storage.md)
+- [Private release checklist](docs/private-release-checklist.md)
 
 ## Product Overview
 
@@ -330,7 +331,7 @@ Core modules:
 - `private_settings.py`: local-only private settings, retention, and password hash references.
 - `private_undertheradar_connector.py`: disabled connector stub and safety gates.
 - `cli.py`: `market-pdf-insights summarize`, `market-pdf-insights brief ...`, and private commands.
-- `streamlit_app.py`: daily brief dashboard and PDF report tab.
+- `streamlit_app.py`: daily brief dashboard, PDF report tab, and private research tab.
 
 ## Development
 
@@ -344,6 +345,8 @@ ruff check .
 
 The test suite is offline. It blocks live network calls, clears real API key environment
 variables, and uses fixture payloads plus mock clients.
+
+Before using the private companion, review the [private release checklist](docs/private-release-checklist.md).
 
 ## Limitations
 
