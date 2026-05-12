@@ -28,6 +28,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Deployment guide](docs/deployment.md)
 - [Private research architecture](docs/private-research-architecture.md)
 - [Private research policy](docs/private-research-policy.md)
+- [Private ingestion](docs/private-ingestion.md)
 - [Private research settings and storage](docs/private-research-storage.md)
 
 ## Product Overview
@@ -43,6 +44,11 @@ The daily market-intelligence workflow:
 
 The original PDF workflow remains available for summarizing individual research PDFs into
 structured `MarketInsightReport` output.
+
+The private research workflow can import user-provided subscribed PDFs, local files/directories,
+saved HTML/text/email files, and manual pasted text into a separate local SQLite store. It can
+list those documents and produce a local placeholder summary for one imported document without
+scraping a logged-in website.
 
 ## Source Policy
 
@@ -146,6 +152,14 @@ Summarize a PDF report:
 market-pdf-insights summarize reports/small-caps-report-issue-700.pdf \
   --output report.json \
   --markdown report.md
+```
+
+Import and summarize private subscribed research you already possess:
+
+```bash
+market-pdf-insights private import ~/Downloads/under-the-radar-report.pdf
+market-pdf-insights private list
+market-pdf-insights private summarize private-abc123
 ```
 
 ## Streamlit Dashboard
@@ -255,7 +269,10 @@ Core modules:
 - `daily_brief_rendering.py`: JSON, Markdown, HTML, text, terminal, and dry-run email rendering.
 - `daily_brief_config.py`: TOML configuration and validation.
 - `daily_brief_runner.py`: configured ingestion, synthesis, output writing, and dry-run email.
-- `cli.py`: `market-pdf-insights summarize` and `market-pdf-insights brief ...`.
+- `private_ingestion.py`: private PDFs, local files, saved emails, and manual text imports.
+- `private_research_storage.py`: local SQLite store for private documents, summaries, citations.
+- `private_settings.py`: local-only private settings, retention, and password hash references.
+- `cli.py`: `market-pdf-insights summarize`, `market-pdf-insights brief ...`, and private commands.
 - `streamlit_app.py`: daily brief dashboard and PDF report tab.
 
 ## Development

@@ -53,6 +53,10 @@ The store supports:
 
 ## Boundary
 
-This storage layer does not implement Under the Radar login automation, scraping, email import,
-recommendation extraction, password UI, or digest output. Later steps should build on these
+The current private workflow can import user-provided PDFs, local files/directories, saved
+HTML/text/email files, and manual pasted text into this store. It can also create a local
+placeholder summary from extracted text.
+
+It does not implement Under the Radar login automation, scraping, password UI, search/Q&A, a
+private digest, or LLM-backed recommendation extraction. Later steps should build on these
 models while preserving the no-redistribution and no-personal-advice boundaries.

@@ -25,6 +25,18 @@ from market_pdf_insights.llm_client import (
     SummaryClient,
 )
 from market_pdf_insights.pdf_loader import PdfLoadError
+from market_pdf_insights.private_ingestion import (
+    import_manual_private_text,
+    import_private_path,
+    private_document_display_rows,
+    summarize_private_document,
+)
+from market_pdf_insights.private_research_policy import PrivateResearchPolicyError
+from market_pdf_insights.private_research_storage import initialize_private_research_store
+from market_pdf_insights.private_settings import (
+    PrivateResearchSettings,
+    load_private_research_settings,
+)
 from market_pdf_insights.report_rendering import render_markdown_report, render_terminal_summary
 from market_pdf_insights.source_policy import SourcePolicyError
 from market_pdf_insights.summarizer import SummarizerConfig, summarize_pdf
@@ -130,6 +142,57 @@ def build_parser() -> argparse.ArgumentParser:
     )
     brief_send_parser.set_defaults(func=_handle_brief_send)
 
+    private_parser = subparsers.add_parser(
+        "private",
+        help="Manage private single-user research imports.",
+    )
+    private_subparsers = private_parser.add_subparsers(dest="private_command", required=True)
+    private_parent = argparse.ArgumentParser(add_help=False)
+    _add_private_common_args(private_parent)
+
+    private_import_parser = private_subparsers.add_parser(
+        "import",
+        parents=[private_parent],
+        help="Import a private PDF, email/text file, directory, or manual text.",
+    )
+    private_import_parser.add_argument(
+        "path",
+        nargs="?",
+        type=Path,
+        help="Private file or directory to import.",
+    )
+    private_import_parser.add_argument(
+        "--manual-text",
+        default=None,
+        help="Manual private text to import instead of a file path.",
+    )
+    private_import_parser.add_argument(
+        "--title",
+        default=None,
+        help="Title for --manual-text imports.",
+    )
+    private_import_parser.add_argument(
+        "--source-name",
+        default="Under the Radar",
+        help="Private source display name.",
+    )
+    private_import_parser.set_defaults(func=_handle_private_import)
+
+    private_list_parser = private_subparsers.add_parser(
+        "list",
+        parents=[private_parent],
+        help="List imported private documents.",
+    )
+    private_list_parser.set_defaults(func=_handle_private_list)
+
+    private_summarize_parser = private_subparsers.add_parser(
+        "summarize",
+        parents=[private_parent],
+        help="Create a local placeholder summary for an imported private document.",
+    )
+    private_summarize_parser.add_argument("document_id", help="Private document id.")
+    private_summarize_parser.set_defaults(func=_handle_private_summarize)
+
     return parser
 
 
@@ -147,6 +210,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         OSError,
         LLMSummarizationError,
         SourcePolicyError,
+        PrivateResearchPolicyError,
     ) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
@@ -233,6 +297,70 @@ def _handle_brief_send(args: argparse.Namespace) -> int:
     return 0
 
 
+def _handle_private_import(args: argparse.Namespace) -> int:
+    """Handle `private import`."""
+
+    settings, store = _private_settings_and_store(args)
+    if args.manual_text is not None:
+        result = import_manual_private_text(
+            args.manual_text,
+            settings=settings,
+            store=store,
+            title=args.title,
+            source_name=args.source_name,
+        )
+    else:
+        if args.path is None:
+            raise ValueError("provide a private import path or --manual-text")
+        result = import_private_path(
+            args.path,
+            settings=settings,
+            store=store,
+            source_name=args.source_name,
+        )
+
+    for warning in result.warnings:
+        print(f"warning: {warning}", file=sys.stderr)
+    print(f"Imported: {result.imported_count}; skipped: {result.skipped_count}")
+    for row in private_document_display_rows(result.documents):
+        print(f"- {row['document_id']} | {row['title']} | {row['source_type']}")
+    return 0
+
+
+def _handle_private_list(args: argparse.Namespace) -> int:
+    """Handle `private list`."""
+
+    _, store = _private_settings_and_store(args)
+    rows = private_document_display_rows(store.list_documents())
+    if not rows:
+        print("No private documents imported.")
+        return 0
+    for row in rows:
+        print(
+            f"{row['document_id']} | {row['issue_date']} | "
+            f"{row['source']} | {row['title']}"
+        )
+    return 0
+
+
+def _handle_private_summarize(args: argparse.Namespace) -> int:
+    """Handle `private summarize`."""
+
+    _, store = _private_settings_and_store(args)
+    summary = summarize_private_document(args.document_id, store=store)
+    print(f"Document: {summary.document_id}")
+    print(f"Summary: {summary.summary_text}")
+    if summary.recommendation_label:
+        print(f"Recommendation label: {summary.recommendation_label}")
+    if summary.tickers:
+        print(f"Tickers: {', '.join(summary.tickers)}")
+    if summary.risks:
+        print(f"Risks: {', '.join(summary.risks)}")
+    if summary.catalysts:
+        print(f"Catalysts: {', '.join(summary.catalysts)}")
+    return 0
+
+
 def _build_summary_client(args: argparse.Namespace) -> SummaryClient:
     """Build the requested summary client."""
 
@@ -296,6 +424,21 @@ def _add_brief_output_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _add_private_common_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--settings",
+        type=Path,
+        default=None,
+        help="Path to private research settings TOML.",
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=None,
+        help="Override private local data directory.",
+    )
+
+
 def _load_daily_brief_config_from_args(args: argparse.Namespace):
     config_path = args.config or Path("daily-brief.toml")
     if args.config is None and not config_path.exists():
@@ -304,6 +447,18 @@ def _load_daily_brief_config_from_args(args: argparse.Namespace):
             "Pass --config path/to/config.toml."
         )
     return load_daily_brief_config(config_path)
+
+
+def _private_settings_and_store(args: argparse.Namespace):
+    settings = (
+        load_private_research_settings(args.settings)
+        if args.settings is not None
+        else PrivateResearchSettings()
+    )
+    if args.data_dir is not None:
+        settings = settings.model_copy(update={"local_data_dir": args.data_dir})
+    store = initialize_private_research_store(settings)
+    return settings, store
 
 
 def _briefing_date(args: argparse.Namespace) -> date:

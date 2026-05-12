@@ -79,6 +79,17 @@ Shared code is allowed only where boundaries are clear:
 ## Current Step
 
 The current implementation has private-use boundary models, secure local settings, password hash
-helpers, and local SQLite storage for metadata, summaries, and citations. It does not implement
-email import, Under the Radar login automation, scraping, password UI, recommendation extraction,
-or private digest output.
+helpers, local SQLite storage for metadata, summaries, and citations, and user-driven private
+ingestion for PDFs, local directories, saved HTML/text/email files, and manual pasted text.
+
+The private CLI supports:
+
+- `market-pdf-insights private import path/to/file_or_dir`;
+- `market-pdf-insights private list`;
+- `market-pdf-insights private summarize DOCUMENT_ID`.
+
+The current summarizer is a deterministic local placeholder that extracts a short summary,
+recommendation labels, uppercase ticker-like symbols, risks, catalysts, and a citation snippet
+from the imported document text. It does not implement Under the Radar login automation,
+scraping, a password-protected UI, search/Q&A, a private digest, or full LLM-backed
+recommendation extraction.

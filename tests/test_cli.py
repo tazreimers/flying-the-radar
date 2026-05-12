@@ -8,6 +8,7 @@ from email.parser import BytesParser
 import io
 import json
 from pathlib import Path
+import re
 import tempfile
 import unittest
 
@@ -195,6 +196,53 @@ class CliTests(unittest.TestCase):
             self.assertTrue(parsed.is_multipart())
             self.assertEqual(parsed["To"], "reader@example.test")
             self.assertTrue(parsed["Subject"].startswith("Daily Market Brief: 2026-05-12"))
+
+    def test_private_import_list_and_summarize_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            data_dir = tmp_path / "private-data"
+            note_path = tmp_path / "private-note.txt"
+            note_path.write_text(
+                """
+Under the Radar CLI Note
+Issue Date: 2026-05-12
+
+Recommendation: Buy
+ABC update.
+Risks: Liquidity risk
+                """.strip(),
+                encoding="utf-8",
+            )
+            import_stdout = io.StringIO()
+
+            with redirect_stdout(import_stdout):
+                import_exit = main(
+                    ["private", "import", str(note_path), "--data-dir", str(data_dir)]
+                )
+
+            import_output = import_stdout.getvalue()
+            document_id_match = re.search(r"- (private-[a-f0-9]+) \|", import_output)
+            self.assertEqual(import_exit, 0)
+            self.assertIn("Imported: 1; skipped: 0", import_output)
+            self.assertIsNotNone(document_id_match)
+            document_id = document_id_match.group(1) if document_id_match else ""
+
+            list_stdout = io.StringIO()
+            with redirect_stdout(list_stdout):
+                list_exit = main(["private", "list", "--data-dir", str(data_dir)])
+
+            summary_stdout = io.StringIO()
+            with redirect_stdout(summary_stdout):
+                summary_exit = main(
+                    ["private", "summarize", document_id, "--data-dir", str(data_dir)]
+                )
+
+            self.assertEqual(list_exit, 0)
+            self.assertEqual(summary_exit, 0)
+            self.assertIn("Under the Radar CLI Note", list_stdout.getvalue())
+            summary_output = summary_stdout.getvalue()
+            self.assertIn("Recommendation label: Buy", summary_output)
+            self.assertIn("ABC", summary_output)
 
 
 def _write_brief_fixture_config(tmp_path: Path, *, cache: bool = False) -> Path:
