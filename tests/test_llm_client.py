@@ -101,6 +101,22 @@ class LLMClientTests(unittest.TestCase):
             fake_client.responses.calls[0]["text"],
             {"format": {"type": "json_object"}},
         )
+        chunk_prompt = fake_client.responses.calls[0]["input"][0]["content"]
+        final_prompt = fake_client.responses.calls[2]["input"][0]["content"]
+        for required_phrase in [
+            "main investment thesis",
+            "bullish arguments",
+            "bearish arguments",
+            "valuation assumptions",
+            "macroeconomic assumptions",
+            "sector implications",
+            "time horizon",
+            "catalysts",
+            "external verification",
+            "do not give financial advice",
+        ]:
+            self.assertIn(required_phrase, chunk_prompt.lower())
+            self.assertIn(required_phrase, final_prompt.lower())
         retry_messages = fake_client.responses.calls[1]["input"]
         self.assertIn("invalid JSON", json.dumps(retry_messages))
 

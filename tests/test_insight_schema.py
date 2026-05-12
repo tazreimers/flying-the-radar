@@ -22,6 +22,10 @@ class InsightSchemaTests(unittest.TestCase):
 
         self.assertEqual(payload["market_stance"], "mixed")
         self.assertIn("document_title", payload)
+        self.assertIn("investment_thesis", payload)
+        self.assertIn("bullish_arguments", payload)
+        self.assertIn("valuation_assumptions", payload)
+        self.assertIn("catalysts", payload)
         self.assertIn("key_claims", payload)
         self.assertIn("numbers_to_verify", payload)
 

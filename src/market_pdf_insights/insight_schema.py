@@ -189,6 +189,22 @@ class MarketInsightReport(StrictInsightModel):
                     "against valuation and inflation risks."
                 ),
                 "market_stance": "mixed",
+                "investment_thesis": (
+                    "The document argues that selective small-cap exposure is attractive "
+                    "if earnings resilience persists and rate pressure eases."
+                ),
+                "bullish_arguments": [
+                    "Lower bond yields could support valuation multiples.",
+                    "Lithium demand may benefit selected materials companies.",
+                ],
+                "bearish_arguments": [
+                    "Sticky inflation could keep policy restrictive and pressure valuations."
+                ],
+                "valuation_assumptions": [
+                    "The outlook assumes valuation multiples can expand as rates fall."
+                ],
+                "time_horizon": "next financial year",
+                "catalysts": ["Lower bond yields", "Improving earnings breadth"],
                 "key_claims": [
                     {
                         "claim": "Quality small-cap companies may benefit if rate pressure eases.",
@@ -256,6 +272,30 @@ class MarketInsightReport(StrictInsightModel):
         description="Concise overview of the report's core market message."
     )
     market_stance: MarketStance = Field(description="Overall stance of the source document.")
+    investment_thesis: NonEmptyStr | None = Field(
+        default=None,
+        description="Main investment thesis presented by the document, if one is stated.",
+    )
+    bullish_arguments: list[NonEmptyStr] = Field(
+        default_factory=list,
+        description="Arguments or evidence the document presents as supportive or upside-oriented.",
+    )
+    bearish_arguments: list[NonEmptyStr] = Field(
+        default_factory=list,
+        description="Arguments or evidence the document presents as cautious or downside-oriented.",
+    )
+    valuation_assumptions: list[NonEmptyStr] = Field(
+        default_factory=list,
+        description="Valuation assumptions, multiples, discounts, premiums, or fair-value claims.",
+    )
+    time_horizon: NonEmptyStr | None = Field(
+        default=None,
+        description="Time horizon stated or implied by the document.",
+    )
+    catalysts: list[NonEmptyStr] = Field(
+        default_factory=list,
+        description="Events or conditions the document identifies as potential catalysts.",
+    )
     key_claims: list[KeyClaim] = Field(
         default_factory=list,
         description="Material claims made by the source document.",
@@ -295,7 +335,15 @@ class MarketInsightReport(StrictInsightModel):
         description="Operational metadata, such as chunk count or model name.",
     )
 
-    @field_validator("supporting_evidence", "sectors_mentioned", "unanswered_questions")
+    @field_validator(
+        "bullish_arguments",
+        "bearish_arguments",
+        "valuation_assumptions",
+        "catalysts",
+        "supporting_evidence",
+        "sectors_mentioned",
+        "unanswered_questions",
+    )
     @classmethod
     def _dedupe_text_lists(cls, values: list[str]) -> list[str]:
         return _dedupe_preserving_order(values)

@@ -12,6 +12,7 @@ from typing import Any, Protocol, Sequence, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from market_pdf_insights.insight_schema import (
+    AssetType,
     KeyClaim,
     MacroAssumption,
     MarketInsightReport,
@@ -59,6 +60,12 @@ class ChunkInsightNotes(BaseModel):
 
     chunk_index: int = Field(ge=0)
     summary: str = Field(min_length=1)
+    investment_thesis: str | None = Field(default=None)
+    bullish_arguments: list[str] = Field(default_factory=list)
+    bearish_arguments: list[str] = Field(default_factory=list)
+    valuation_assumptions: list[str] = Field(default_factory=list)
+    time_horizon: str | None = Field(default=None)
+    catalysts: list[str] = Field(default_factory=list)
     key_claims: list[KeyClaim] = Field(default_factory=list)
     supporting_evidence: list[str] = Field(default_factory=list)
     risks: list[Risk] = Field(default_factory=list)
@@ -287,6 +294,12 @@ class PlaceholderLLMClient:
             executive_summary=executive_summary
             or "No summary could be generated from the extracted document text.",
             market_stance=_infer_market_stance(combined_text),
+            investment_thesis=_infer_investment_thesis(key_claims, supporting_evidence),
+            bullish_arguments=_extract_bullish_arguments(sentences),
+            bearish_arguments=risk_sentences,
+            valuation_assumptions=_extract_valuation_assumptions(sentences),
+            time_horizon=_extract_time_horizon(combined_text),
+            catalysts=_extract_catalysts(sentences),
             key_claims=key_claims,
             supporting_evidence=supporting_evidence,
             risks=[
@@ -322,24 +335,48 @@ class PlaceholderLLMClient:
         )
 
 
+_FINANCE_EXTRACTION_REQUIREMENTS = """
+- Extract the main investment thesis when the document states or implies one.
+- Separate bullish arguments from bearish arguments.
+- Capture valuation assumptions, including multiples, fair value, discount, premium, price target,
+  margin of safety, or valuation sensitivity claims.
+- Capture macroeconomic assumptions, including inflation, rates, yields, GDP, employment,
+  commodities, currencies, and policy assumptions.
+- Capture sector implications and the sectors affected.
+- Capture named companies, tickers, indices, commodities, currencies, and rates.
+- Capture the stated or implied time horizon.
+- Capture catalysts such as earnings, guidance, policy decisions, transactions, product launches,
+  commodity price moves, rate changes, or regulatory events.
+- Capture risks and downside cases.
+- Flag claims that need external verification, especially numbers, forecasts, valuation claims,
+  dates, and market data.
+""".strip()
+
 _CHUNK_NOTES_SYSTEM_PROMPT = f"""
-You extract structured notes from one chunk of market research text.
+You extract structured finance notes from one chunk of market research text.
 Return only valid JSON matching this JSON Schema:
 
 {json.dumps(ChunkInsightNotes.model_json_schema(), indent=2)}
+
+Finance extraction requirements:
+{_FINANCE_EXTRACTION_REQUIREMENTS}
 
 Rules:
 - Base every field only on the provided chunk.
 - Keep evidence snippets short and source-grounded.
 - Use empty arrays when the chunk does not support a field.
 - Use "unclear" for stance or direction when the chunk is ambiguous.
+- Do not give financial advice, recommendations, or instructions to buy, sell, or hold.
 """.strip()
 
 _FINAL_REPORT_SYSTEM_PROMPT = f"""
-You synthesize chunk-level market research notes into one final report.
+You synthesize chunk-level market research notes into one final analytical report.
 Return only valid JSON matching this JSON Schema:
 
 {json.dumps(MarketInsightReport.model_json_schema(), indent=2)}
+
+Finance synthesis requirements:
+{_FINANCE_EXTRACTION_REQUIREMENTS}
 
 Rules:
 - Use only the provided notes.
@@ -347,6 +384,8 @@ Rules:
 - Do not invent tickers, companies, numbers, or macro assumptions.
 - Put uncertain or externally checkable numeric claims in numbers_to_verify.
 - Set confidence_score lower when the notes are thin, conflicting, or ambiguous.
+- Do not give financial advice, recommendations, or instructions to buy, sell, or hold.
+- Summarize and analyze the document only.
 """.strip()
 
 _SECTOR_TERMS = {
@@ -371,6 +410,49 @@ _MARKET_THEME_TERMS = {
     "valuation": ["valuation", "multiple", "discount", "premium"],
     "growth": ["growth", "expansion", "market share"],
     "capital management": ["buyback", "dividend", "capital raise", "balance sheet"],
+}
+
+_VALUATION_TERMS = [
+    "discount",
+    "fair value",
+    "margin of safety",
+    "multiple",
+    "premium",
+    "price target",
+    "valuation",
+]
+
+_CATALYST_TERMS = [
+    "catalyst",
+    "catalysts",
+    "commodity price",
+    "earnings",
+    "guidance",
+    "launch",
+    "merger",
+    "policy",
+    "rate cut",
+    "rate hike",
+    "regulatory",
+    "takeover",
+    "transaction",
+]
+
+_NAMED_ASSET_TERMS: dict[str, AssetType] = {
+    "ASX 200": "index",
+    "S&P 500": "index",
+    "NASDAQ": "index",
+    "gold": "commodity",
+    "oil": "commodity",
+    "copper": "commodity",
+    "lithium": "commodity",
+    "uranium": "commodity",
+    "USD": "currency",
+    "AUD": "currency",
+    "EUR": "currency",
+    "JPY": "currency",
+    "interest rates": "other",
+    "bond yields": "other",
 }
 
 _BULLISH_TERMS = [
@@ -437,6 +519,12 @@ _NUMBER_PATTERN = re.compile(
     re.IGNORECASE,
 )
 _PAGE_MARKER_PATTERN = re.compile(r"---\s*Page\s+\d+\s*---", re.IGNORECASE)
+_TIME_HORIZON_PATTERN = re.compile(
+    r"\b(?:(?:next|over|within|during|by)\s+(?:the\s+)?(?:\d+\s+)?"
+    r"(?:days?|weeks?|months?|quarters?|years?|financial year|fiscal year)|"
+    r"(?:near|medium|long)[-\s]term|FY\d{2,4}|CY\d{2,4})\b",
+    re.IGNORECASE,
+)
 
 
 def _split_sentences(text: str) -> list[str]:
@@ -552,9 +640,22 @@ def _extract_sectors(text: str) -> list[str]:
 
 
 def _extract_asset_mentions(text: str) -> list[MentionedAsset]:
-    """Extract likely all-caps ticker symbols from the source text."""
+    """Extract likely tickers and commonly named market assets from the source text."""
 
-    ignored = {"ASX", "CEO", "CFO", "ETF", "GDP", "LLM", "PDF", "USD"}
+    ignored = {
+        "ASX",
+        "AUD",
+        "CEO",
+        "CFO",
+        "ETF",
+        "EUR",
+        "GDP",
+        "JPY",
+        "LLM",
+        "NASDAQ",
+        "PDF",
+        "USD",
+    }
     counts = Counter(
         match.group(0)
         for match in _TICKER_PATTERN.finditer(text)
@@ -564,6 +665,22 @@ def _extract_asset_mentions(text: str) -> list[MentionedAsset]:
         MentionedAsset(name=ticker, ticker=ticker, asset_type="company", sentiment="unclear")
         for ticker, _count in counts.most_common(10)
     ]
+    existing_names = {
+        (mention.name or mention.ticker or "").casefold()
+        for mention in mentions
+    }
+    lowered = text.lower()
+    for asset_name, asset_type in _NAMED_ASSET_TERMS.items():
+        if asset_name.lower() not in lowered or asset_name.casefold() in existing_names:
+            continue
+        mentions.append(
+            MentionedAsset(
+                name=asset_name,
+                asset_type=asset_type,
+                sentiment="unclear",
+            )
+        )
+        existing_names.add(asset_name.casefold())
     return mentions
 
 
@@ -587,6 +704,47 @@ def _extract_key_claims(sentences: Sequence[str]) -> list[KeyClaim]:
         if len(claims) >= 5:
             break
     return claims
+
+
+def _infer_investment_thesis(
+    key_claims: Sequence[KeyClaim],
+    supporting_evidence: Sequence[str],
+) -> str | None:
+    """Infer a short investment thesis from the strongest available claim."""
+
+    for claim in key_claims:
+        if claim.stance in {"bullish", "mixed"}:
+            return claim.claim
+    if key_claims:
+        return key_claims[0].claim
+    if supporting_evidence:
+        return supporting_evidence[0]
+    return None
+
+
+def _extract_bullish_arguments(sentences: Sequence[str]) -> list[str]:
+    """Extract sentences containing upside-oriented language."""
+
+    return _sentences_matching(sentences, _BULLISH_TERMS, limit=5)
+
+
+def _extract_valuation_assumptions(sentences: Sequence[str]) -> list[str]:
+    """Extract sentences containing valuation-related assumptions."""
+
+    return _sentences_matching(sentences, _VALUATION_TERMS, limit=5)
+
+
+def _extract_time_horizon(text: str) -> str | None:
+    """Extract a stated or implied time horizon from the text."""
+
+    match = _TIME_HORIZON_PATTERN.search(text)
+    return match.group(0) if match else None
+
+
+def _extract_catalysts(sentences: Sequence[str]) -> list[str]:
+    """Extract sentences naming possible catalysts."""
+
+    return _sentences_matching(sentences, _CATALYST_TERMS, limit=5)
 
 
 def _infer_market_stance(text: str) -> str:

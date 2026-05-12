@@ -50,6 +50,12 @@ The command writes structured JSON to stdout:
   "document_title": "Research Note",
   "executive_summary": "...",
   "market_stance": "mixed",
+  "investment_thesis": "...",
+  "bullish_arguments": [],
+  "bearish_arguments": [],
+  "valuation_assumptions": [],
+  "time_horizon": "medium term",
+  "catalysts": [],
   "key_claims": [],
   "supporting_evidence": [],
   "risks": [],
@@ -85,6 +91,12 @@ You can override it per run:
 ```bash
 market-pdf-insights summarize path/to/file.pdf --llm openai --model gpt-4.1-mini
 ```
+
+The OpenAI prompts are designed for document analysis only. They ask the model to extract
+the investment thesis, bullish and bearish arguments, valuation assumptions, macro
+assumptions, sector implications, named assets, time horizon, catalysts, risks, and claims
+requiring external verification. They explicitly instruct the model not to provide
+financial advice.
 
 ## Development
 
