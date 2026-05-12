@@ -134,6 +134,17 @@ from market_pdf_insights.llm_client import (
     PlaceholderLLMClient,
 )
 from market_pdf_insights.pdf_loader import extract_pdf_text
+from market_pdf_insights.private_research_policy import (
+    PrivateResearchAccessMethod,
+    PrivateResearchBoundary,
+    PrivateResearchModule,
+    PrivateResearchModuleBoundary,
+    PrivateResearchPolicyError,
+    PrivateSourceAttribution,
+    default_private_research_boundary,
+    default_private_research_module_boundaries,
+    private_research_scope_notes,
+)
 from market_pdf_insights.report_rendering import render_markdown_report, render_terminal_summary
 from market_pdf_insights.source_policy import (
     DEFAULT_GUARDRAILS,
@@ -192,6 +203,12 @@ __all__ = [
     "OpenAIDailyBriefClient",
     "OpenAISummaryClient",
     "PlaceholderLLMClient",
+    "PrivateResearchAccessMethod",
+    "PrivateResearchBoundary",
+    "PrivateResearchModule",
+    "PrivateResearchModuleBoundary",
+    "PrivateResearchPolicyError",
+    "PrivateSourceAttribution",
     "Risk",
     "AssetMention",
     "ConnectorResult",
@@ -261,6 +278,8 @@ __all__ = [
     "build_daily_brief_connectors",
     "build_source_citations",
     "build_daily_brief_email_message",
+    "default_private_research_boundary",
+    "default_private_research_module_boundaries",
     "default_source_registry",
     "deduplicate_items",
     "describe_daily_brief_sources",
@@ -273,6 +292,7 @@ __all__ = [
     "normalize_source_item",
     "oecd_disabled_source",
     "parse_datetime",
+    "private_research_scope_notes",
     "rba_source",
     "render_daily_brief_html",
     "render_daily_brief_json",

@@ -9,6 +9,10 @@ The daily brief is scoped to factual information and general market commentary. 
 personalize output to a user's objectives, financial situation, or needs, and it must not
 provide buy/sell/hold recommendations.
 
+Pivot 3 starts a separate private, single-user research companion for subscribed material. It is
+for user-provided documents and permitted exports first; logged-in automation remains disabled
+unless subscription terms explicitly permit the exact access pattern.
+
 ## Documentation
 
 - [Market intelligence architecture](docs/market-intelligence-architecture.md)
@@ -22,6 +26,8 @@ provide buy/sell/hold recommendations.
 - [Daily brief rendering](docs/daily-brief-rendering.md)
 - [Daily brief operations](docs/daily-brief-operations.md)
 - [Deployment guide](docs/deployment.md)
+- [Private research architecture](docs/private-research-architecture.md)
+- [Private research policy](docs/private-research-policy.md)
 
 ## Product Overview
 
