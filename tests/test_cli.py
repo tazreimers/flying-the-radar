@@ -293,6 +293,58 @@ Risks: Liquidity risk
             self.assertIn("speculative_buy", history_stdout.getvalue())
             self.assertIn("hold -> speculative_buy", compare_stdout.getvalue())
 
+    def test_private_digest_command_writes_outputs_and_email_dry_run(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            data_dir = tmp_path / "private-data"
+            _seed_private_cli_library(data_dir)
+            json_path = tmp_path / "digest" / "private-digest.json"
+            markdown_path = tmp_path / "digest" / "private-digest.md"
+            html_path = tmp_path / "digest" / "private-digest.html"
+            eml_path = tmp_path / "digest" / "private-digest.eml"
+            stdout = io.StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "private",
+                        "digest",
+                        "--data-dir",
+                        str(data_dir),
+                        "--period",
+                        "weekly",
+                        "--date",
+                        "2026-06-01",
+                        "--output",
+                        str(json_path),
+                        "--markdown",
+                        str(markdown_path),
+                        "--html",
+                        str(html_path),
+                        "--email-dry-run",
+                        str(eml_path),
+                        "--sender",
+                        "private@example.test",
+                        "--recipient",
+                        "reader@example.test",
+                    ]
+                )
+
+            parsed = BytesParser(policy=policy.default).parsebytes(eml_path.read_bytes())
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(payload["period"], "weekly")
+            self.assertIn("Private digest: weekly", stdout.getvalue())
+            self.assertIn(f"Markdown: {markdown_path}", stdout.getvalue())
+            self.assertIn(
+                "Under the Radar EXR 2026-06-01",
+                markdown_path.read_text(encoding="utf-8"),
+            )
+            self.assertIn("<h2>Per-Ticker Summaries</h2>", html_path.read_text(encoding="utf-8"))
+            self.assertEqual(parsed["To"], "reader@example.test")
+            self.assertTrue(parsed["Subject"].startswith("Private Research Digest:"))
+            self.assertTrue(parsed.is_multipart())
+
 
 def _seed_private_cli_library(data_dir: Path) -> tuple[str, str]:
     settings = PrivateResearchSettings(local_data_dir=data_dir)

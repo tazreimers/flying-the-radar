@@ -31,6 +31,15 @@ from market_pdf_insights.private_ingestion import (
     private_document_display_rows,
     summarize_private_document,
 )
+from market_pdf_insights.private_digest import (
+    PrivateDigestEmailSettings,
+    build_private_digest,
+    render_private_digest_html,
+    render_private_digest_json,
+    render_private_digest_markdown,
+    render_private_digest_terminal_summary,
+    write_private_digest_dry_run_email,
+)
 from market_pdf_insights.private_research_library import (
     PrivateResearchLibrary,
     PrivateResearchSearchFilters,
@@ -225,6 +234,88 @@ def build_parser() -> argparse.ArgumentParser:
     private_compare_parser.add_argument("document_a", help="First private document id.")
     private_compare_parser.add_argument("document_b", help="Second private document id.")
     private_compare_parser.set_defaults(func=_handle_private_compare)
+
+    private_digest_parser = private_subparsers.add_parser(
+        "digest",
+        parents=[private_parent],
+        help="Render a private daily or weekly digest from indexed recommendations.",
+    )
+    private_digest_parser.add_argument(
+        "--period",
+        choices=("daily", "weekly"),
+        default="daily",
+        help="Digest period. Defaults to daily.",
+    )
+    private_digest_parser.add_argument(
+        "--date",
+        type=_parse_date,
+        default=None,
+        help="As-of date in YYYY-MM-DD format. Defaults to today.",
+    )
+    private_digest_parser.add_argument(
+        "--from-date",
+        type=_parse_date,
+        default=None,
+        help="Override digest start date in YYYY-MM-DD format.",
+    )
+    private_digest_parser.add_argument(
+        "--to-date",
+        type=_parse_date,
+        default=None,
+        help="Override digest end date in YYYY-MM-DD format.",
+    )
+    private_digest_parser.add_argument(
+        "--ticker",
+        action="append",
+        default=[],
+        help="Limit digest to a ticker. Repeat for multiple tickers.",
+    )
+    private_digest_parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Path to save the private digest JSON.",
+    )
+    private_digest_parser.add_argument(
+        "--markdown",
+        type=Path,
+        default=None,
+        help="Path to save a Markdown private digest.",
+    )
+    private_digest_parser.add_argument(
+        "--html",
+        type=Path,
+        default=None,
+        help="Path to save an HTML private digest.",
+    )
+    private_digest_parser.add_argument(
+        "--email-dry-run",
+        type=Path,
+        default=None,
+        help="Path for local .eml, .html, or .txt private digest dry-run output.",
+    )
+    private_digest_parser.add_argument(
+        "--sender",
+        default=None,
+        help="Dry-run email From address. No credentials are read or sent.",
+    )
+    private_digest_parser.add_argument(
+        "--recipient",
+        action="append",
+        default=[],
+        help="Dry-run email recipient. Repeat for multiple recipients.",
+    )
+    private_digest_parser.add_argument(
+        "--reply-to",
+        default=None,
+        help="Optional dry-run Reply-To address.",
+    )
+    private_digest_parser.add_argument(
+        "--subject-prefix",
+        default="Private Research Digest",
+        help="Dry-run email subject prefix.",
+    )
+    private_digest_parser.set_defaults(func=_handle_private_digest)
 
     return parser
 
@@ -473,6 +564,55 @@ def _handle_private_compare(args: argparse.Namespace) -> int:
     return 0
 
 
+def _handle_private_digest(args: argparse.Namespace) -> int:
+    """Handle `private digest`."""
+
+    _, store = _private_settings_and_store(args)
+    digest = build_private_digest(
+        store,
+        period=args.period,
+        as_of=args.date or date.today(),
+        date_from=args.from_date,
+        date_to=args.to_date,
+        tickers=args.ticker,
+    )
+    saved_paths: list[str] = []
+    direct_outputs = {
+        "JSON": (args.output, render_private_digest_json),
+        "Markdown": (args.markdown, render_private_digest_markdown),
+        "HTML": (args.html, render_private_digest_html),
+    }
+    for label, (path, renderer) in direct_outputs.items():
+        if path is None:
+            continue
+        _write_text(path, renderer(digest))
+        saved_paths.append(f"{label}: {path}")
+
+    if args.email_dry_run is not None:
+        if not args.sender:
+            raise ValueError("--sender is required with --email-dry-run")
+        if not args.recipient:
+            raise ValueError("--recipient is required with --email-dry-run")
+        email_settings = PrivateDigestEmailSettings(
+            sender=args.sender,
+            recipients=args.recipient,
+            reply_to=args.reply_to,
+            subject_prefix=args.subject_prefix,
+        )
+        email_result = write_private_digest_dry_run_email(
+            digest,
+            email_settings,
+            args.email_dry_run,
+        )
+        saved_paths.extend(
+            f"{_private_digest_saved_label(key)}: {path}"
+            for key, path in email_result.output_paths.items()
+        )
+
+    print(render_private_digest_terminal_summary(digest, saved_paths=saved_paths))
+    return 0
+
+
 def _build_summary_client(args: argparse.Namespace) -> SummaryClient:
     """Build the requested summary client."""
 
@@ -636,6 +776,15 @@ def _brief_saved_paths(result) -> list[str]:
             for key, path in result.email_result.output_paths.items()
         )
     return saved
+
+
+def _private_digest_saved_label(key: str) -> str:
+    labels = {
+        "eml": "Private digest email dry-run",
+        "html": "Private digest email HTML",
+        "text": "Private digest email text",
+    }
+    return labels.get(key, key)
 
 
 def _positive_int(value: str) -> int:

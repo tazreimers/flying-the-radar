@@ -32,6 +32,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Private research schema](docs/private-research-schema.md)
 - [Private research summarizer](docs/private-research-summarizer.md)
 - [Private research library](docs/private-research-library.md)
+- [Private digest](docs/private-digest.md)
 - [Private research UI](docs/private-research-ui.md)
 - [Optional Under the Radar connector stub](docs/private-undertheradar-connector.md)
 - [Private research settings and storage](docs/private-research-storage.md)
@@ -71,6 +72,10 @@ The private Streamlit tab provides a local password-gated workspace for importin
 manual text, running the offline private summarizer, reviewing recommendations, checking
 risks/catalysts/numbers to verify, viewing source citations, and downloading private
 JSON/Markdown summaries.
+
+The private digest renderer can produce daily or weekly single-user digests from indexed
+subscribed research, including per-document summaries, per-ticker summaries, a recommendation
+change log, short source references, JSON/Markdown/HTML outputs, and local `.eml` dry runs.
 
 An optional Under the Radar connector stub exists for future personal automation design. It is
 disabled by default, requires explicit environment and terms gates, and still refuses to perform
@@ -193,6 +198,10 @@ market-pdf-insights private summarize private-abc123
 market-pdf-insights private search --ticker EXR
 market-pdf-insights private history --ticker EXR
 market-pdf-insights private compare private-doc-a private-doc-b
+market-pdf-insights private digest \
+  --period weekly \
+  --markdown outputs/private-digest.md \
+  --html outputs/private-digest.html
 ```
 
 ## Streamlit Dashboard
@@ -212,17 +221,19 @@ flags, and JSON/Markdown/HTML downloads. A second tab keeps the PDF upload workf
 The `Private Research` tab uses the local private store, `.private-research` by default. It can
 import subscribed PDFs, saved emails, HTML/text files, or pasted notes; summarize and index them
 with the offline placeholder path; show latest summaries, ticker history, recommendation detail,
-risks, catalysts, numbers to verify, and citations; and download private JSON/Markdown. If
+risks, catalysts, numbers to verify, citations, and private digests; and download private
+JSON/Markdown/HTML outputs. If
 `[password_protection].enabled = true`, set `MARKET_PRIVATE_UI_PASSWORD_HASH` in the environment
 or Streamlit secrets. Generate the hash with `hash_private_password`; do not store plaintext
 passwords in settings.
 
 ## Email
 
-Current email support is intentionally dry-run only. `DailyBriefEmailSettings` stores sender,
-recipient, subject prefix, and reply-to envelope settings. `DryRunDailyBriefEmailWriter` writes
-`.eml` or text/HTML files locally. A future sender can implement `DailyBriefEmailSender` for
-SMTP or a provider API, with credentials supplied by environment variables or a secret store.
+Current email support is intentionally dry-run only. `DailyBriefEmailSettings` and
+`PrivateDigestEmailSettings` store sender, recipient, subject prefix, and reply-to envelope
+settings. `DryRunDailyBriefEmailWriter` and `DryRunPrivateDigestEmailWriter` write `.eml` or
+text/HTML files locally. Future senders can implement the sender protocols for SMTP or a
+provider API, with credentials supplied by environment variables or a secret store.
 
 ## Scheduling
 
@@ -315,6 +326,7 @@ Core modules:
 - `private_research_schema.py`: structured private stock recommendation schema.
 - `private_research_synthesis.py`: private chunk notes and structured recommendation synthesis.
 - `private_research_storage.py`: local SQLite store for private documents, summaries, citations.
+- `private_digest.py`: private daily/weekly digest rendering and dry-run email output.
 - `private_settings.py`: local-only private settings, retention, and password hash references.
 - `private_undertheradar_connector.py`: disabled connector stub and safety gates.
 - `cli.py`: `market-pdf-insights summarize`, `market-pdf-insights brief ...`, and private commands.
@@ -341,7 +353,7 @@ variables, and uses fixture payloads plus mock clients.
   human verification.
 - Live source connectors require source-specific endpoint scope, credentials, rate limits, and
   terms review before being enabled.
-- The app does not send email yet; only dry-run email files are written.
+- The app does not send real email yet; only dry-run email files are written.
 - The app does not include a background scheduler.
 - Extracted PDF text quality depends on the source document; scanned PDFs without OCR may
   produce little useful text.

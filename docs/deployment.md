@@ -79,12 +79,13 @@ jobs:
 
 ## Email
 
-`brief send --dry-run` writes a local `.eml`, `.html`, or `.txt` output. It does not send real
-email.
+`brief send --dry-run` and `private digest --email-dry-run` write local `.eml`, `.html`, or
+`.txt` outputs. They do not send real email.
 
-Future SMTP or provider senders should implement `DailyBriefEmailSender` and read credentials
-from environment variables or a secret manager. Do not add SMTP usernames, passwords, tokens, or
-provider API keys to config files, fixtures, tests, screenshots, or documentation.
+Future SMTP or provider senders should implement `DailyBriefEmailSender` or
+`PrivateDigestEmailSender` and read credentials from environment variables or a secret manager.
+Do not add SMTP usernames, passwords, tokens, or provider API keys to config files, fixtures,
+tests, screenshots, or documentation.
 
 ## Operational Review
 

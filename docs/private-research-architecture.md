@@ -64,9 +64,8 @@ flowchart TD
   environment, terms, settings, and credential gates, then refuses live automation.
 - `private_research_library.py`: local private recommendation search, history, latest ticker
   lookup, document comparison, and unresolved verification questions.
-- `private_recommendations.py`: extract recommendations, risks, catalysts, and valuation notes.
-  No personal advice.
-- `private_digest.py`: render private single-user digests. No redistribution workflow.
+- `private_digest.py`: render private single-user daily/weekly digests, output files, and
+  dry-run email. No redistribution workflow.
 - `private_search.py`: search/Q&A over local private records. Cite local source records.
 - `streamlit_app.py`: password-protected local private research tab. No unauthenticated private
   content when private password protection is enabled.
@@ -107,8 +106,11 @@ supports ticker/company/date/rating/sector/keyword search, recommendation histor
 comparison, and unresolved verification questions. The Streamlit app now includes a private
 research tab with a configurable password gate, import workflow, document library, latest
 summaries, recommendation detail, ticker history, risks/catalysts/numbers-to-verify, source
-citations, and private JSON/Markdown downloads.
+citations, digest previews, and private JSON/Markdown/HTML downloads. The private digest
+renderer now supports daily/weekly digest models, per-document summaries, per-ticker summaries,
+recommendation change logs, short source references, JSON/Markdown/HTML/text rendering, and
+local `.eml` dry-run output.
 
 The Under the Radar connector is only a disabled safety stub; it does not implement live login,
 scraping, browser automation, or PDF download. The app also does not yet implement
-natural-language search/Q&A, a private digest, or production multi-user access control.
+natural-language search/Q&A, real email sending, or production multi-user access control.

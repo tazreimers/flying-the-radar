@@ -64,6 +64,7 @@ session expiry timestamp in Streamlit session state.
 - `History`: ticker recommendation timeline from locally indexed summaries.
 - `Risks`: consolidated risk, catalyst, and unresolved verification-question views.
 - `Citations`: source-light excerpts and page/section labels from structured summaries.
+- `Digest`: daily or weekly private digest preview with JSON, Markdown, and HTML downloads.
 
 Every private screen displays the private-use disclaimer: private research organization only,
 not financial advice, and no redistribution of subscribed material or generated private
@@ -72,6 +73,6 @@ summaries.
 ## Current Limits
 
 The UI is intentionally local and conservative. It does not implement live Under the Radar
-automation, browser login, scraping, email sending, or multi-user deployment security. Treat the
-password gate as a local access guard, and use operating-system disk encryption or deployment
+automation, browser login, scraping, real email sending, or multi-user deployment security. Treat
+the password gate as a local access guard, and use operating-system disk encryption or deployment
 controls for stronger protection.

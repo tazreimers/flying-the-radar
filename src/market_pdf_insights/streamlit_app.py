@@ -43,6 +43,13 @@ from market_pdf_insights.private_ingestion import (
     import_uploaded_private_pdf,
     private_document_display_rows,
 )
+from market_pdf_insights.private_digest import (
+    PrivateDigest,
+    build_private_digest,
+    render_private_digest_html,
+    render_private_digest_json,
+    render_private_digest_markdown,
+)
 from market_pdf_insights.private_research_library import (
     PrivateResearchLibrary,
     PrivateResearchSearchFilters,
@@ -311,6 +318,35 @@ def build_private_research_downloads(
             file_name=f"{base_name}.md",
             mime="text/markdown",
             content=render_private_research_markdown(summary),
+        ),
+    ]
+
+
+def build_private_digest_downloads(digest: PrivateDigest) -> list[PrivateResearchDownload]:
+    """Build JSON, Markdown, and HTML downloads for a private digest."""
+
+    base_name = (
+        f"private-{digest.period}-digest-"
+        f"{digest.date_from.isoformat()}-to-{digest.date_to.isoformat()}"
+    )
+    return [
+        PrivateResearchDownload(
+            label="JSON",
+            file_name=f"{base_name}.json",
+            mime="application/json",
+            content=render_private_digest_json(digest),
+        ),
+        PrivateResearchDownload(
+            label="Markdown",
+            file_name=f"{base_name}.md",
+            mime="text/markdown",
+            content=render_private_digest_markdown(digest),
+        ),
+        PrivateResearchDownload(
+            label="HTML",
+            file_name=f"{base_name}.html",
+            mime="text/html",
+            content=render_private_digest_html(digest),
         ),
     ]
 
@@ -787,18 +823,26 @@ def _render_private_research_app() -> None:
     if not _render_private_password_gate(settings):
         return
 
-    import_tab, library_tab, summaries_tab, detail_tab, history_tab, risks_tab, citations_tab = (
-        st.tabs(
-            [
-                "Import",
-                "Library",
-                "Summaries",
-                "Recommendation",
-                "History",
-                "Risks",
-                "Citations",
-            ]
-        )
+    (
+        import_tab,
+        library_tab,
+        summaries_tab,
+        detail_tab,
+        history_tab,
+        risks_tab,
+        citations_tab,
+        digest_tab,
+    ) = st.tabs(
+        [
+            "Import",
+            "Library",
+            "Summaries",
+            "Recommendation",
+            "History",
+            "Risks",
+            "Citations",
+            "Digest",
+        ]
     )
     with import_tab:
         _render_private_import_screen(settings, store)
@@ -814,6 +858,8 @@ def _render_private_research_app() -> None:
         _render_private_risks_screen(store)
     with citations_tab:
         _render_private_citations_screen(store)
+    with digest_tab:
+        _render_private_digest_screen(store)
 
 
 def _render_private_password_gate(settings: PrivateResearchSettings) -> bool:
@@ -1046,6 +1092,58 @@ def _render_private_citations_screen(store: PrivateResearchStore) -> None:
     for record in records:
         with st.expander(record.summary.document_title):
             _render_table("Source Citations", build_private_source_excerpt_rows(record.summary))
+
+
+def _render_private_digest_screen(store: PrivateResearchStore) -> None:
+    """Render a private digest preview and downloads."""
+
+    import streamlit as st
+
+    control_cols = st.columns([1, 1, 2])
+    period = control_cols[0].selectbox(
+        "Period",
+        options=["daily", "weekly"],
+        index=0,
+        key="private_digest_period",
+    )
+    as_of = control_cols[1].date_input(
+        "As of",
+        value=date.today(),
+        key="private_digest_as_of",
+    )
+    tickers = control_cols[2].text_input(
+        "Tickers",
+        placeholder="Optional comma-separated tickers",
+        key="private_digest_tickers",
+    )
+    if st.button("Build Digest", type="primary", key="private_digest_build"):
+        digest = build_private_digest(
+            store,
+            period=period,
+            as_of=as_of,
+            tickers=[ticker.strip() for ticker in tickers.split(",") if ticker.strip()],
+        )
+        st.session_state["private_digest"] = digest
+
+    digest = st.session_state.get("private_digest")
+    if not isinstance(digest, PrivateDigest):
+        st.caption("Build a digest from indexed private summaries.")
+        return
+
+    metric_cols = st.columns(3)
+    metric_cols[0].metric("Documents", len(digest.document_summaries))
+    metric_cols[1].metric("Tickers", len(digest.ticker_summaries))
+    metric_cols[2].metric("Changes", len(digest.recommendation_change_log))
+    st.markdown(render_private_digest_markdown(digest))
+    download_cols = st.columns(3)
+    for column, download in zip(download_cols, build_private_digest_downloads(digest), strict=True):
+        column.download_button(
+            download.label,
+            data=download.content,
+            file_name=download.file_name,
+            mime=download.mime,
+            key=f"private_digest_download_{download.label}",
+        )
 
 
 def _render_private_summary(summary: PrivateResearchDocument) -> None:
