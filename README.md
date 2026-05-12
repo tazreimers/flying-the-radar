@@ -23,6 +23,7 @@ See:
 
 - [Market intelligence architecture](docs/market-intelligence-architecture.md)
 - [Source policy](docs/source-policy.md)
+- [Source registry](docs/source-registry.md)
 
 ## Features
 
@@ -166,6 +167,7 @@ Core modules:
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.
 - `source_policy.py`: defines Pivot 2 source-use and advice-boundary guardrails.
+- `source_registry.py`: centralizes public source metadata, credentials, and compliance checks.
 - `cli.py`: exposes the `market-pdf-insights` command.
 - `streamlit_app.py`: exposes the upload-and-summarize web app.
 

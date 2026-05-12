@@ -27,6 +27,17 @@ from market_pdf_insights.source_policy import (
     SourcePolicyError,
     SourceUsePolicy,
 )
+from market_pdf_insights.source_registry import (
+    SourceAuthType,
+    SourceCapability,
+    SourceCategory,
+    SourceCredentialPolicy,
+    SourceDefinition,
+    SourceFetchResult,
+    SourceRegistry,
+    SourceTerms,
+    default_source_registry,
+)
 from market_pdf_insights.summarizer import MarketPdfSummarizer, summarize_pdf
 
 __all__ = [
@@ -44,12 +55,21 @@ __all__ = [
     "PlaceholderLLMClient",
     "Risk",
     "SourceAccessMethod",
+    "SourceAuthType",
     "SourceAttribution",
+    "SourceCapability",
+    "SourceCategory",
+    "SourceCredentialPolicy",
+    "SourceDefinition",
+    "SourceFetchResult",
     "SourcePolicyError",
+    "SourceRegistry",
+    "SourceTerms",
     "SourceUsePolicy",
     "VerificationItem",
     "AdviceBoundary",
     "DEFAULT_GUARDRAILS",
+    "default_source_registry",
     "extract_pdf_text",
     "render_markdown_report",
     "render_terminal_summary",
