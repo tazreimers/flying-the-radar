@@ -43,7 +43,20 @@ Second page text...
 market-pdf-insights summarize path/to/file.pdf
 ```
 
-The command writes structured JSON to stdout:
+The command prints a concise terminal summary. Use `--output` to save the full
+structured JSON report:
+
+```bash
+market-pdf-insights summarize path/to/file.pdf --output report.json
+```
+
+For optional Markdown output:
+
+```bash
+market-pdf-insights summarize path/to/file.pdf --output report.json --markdown report.md
+```
+
+The JSON report has this shape:
 
 ```json
 {
@@ -72,10 +85,10 @@ The command writes structured JSON to stdout:
 
 For a fuller validated example, see `examples/market_insight_report.json`.
 
-For compact output:
+To change chunk size:
 
 ```bash
-market-pdf-insights summarize path/to/file.pdf --compact
+market-pdf-insights summarize path/to/file.pdf --max-chars 6000
 ```
 
 To use the OpenAI-backed summarizer, set an API key and select the OpenAI backend:
