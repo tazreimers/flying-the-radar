@@ -24,9 +24,9 @@ Preferred input paths:
 - manual entry;
 - exports explicitly permitted by subscription terms.
 
-Logged-in automation is not implemented in this step. Any future logged-in connector must stay
-disabled by default and require explicit user confirmation that subscription terms permit the
-exact access pattern.
+Logged-in automation is not implemented. An optional Under the Radar connector stub exists only
+to model future safety gates. It stays disabled by default and requires explicit user
+confirmation that subscription terms permit the exact access pattern.
 
 ## Architecture
 
@@ -55,6 +55,8 @@ flowchart TD
   Implemented now.
 - `private_ingestion.py`: upload, local-file, email, manual, and permitted export importers.
   No logged-in scraping.
+- `private_undertheradar_connector.py`: disabled Under the Radar connector stub. It validates
+  environment, terms, settings, and credential gates, then refuses live automation.
 - `private_library.py`: private document metadata, storage, and history. Separate from the
   public brief cache.
 - `private_recommendations.py`: extract recommendations, risks, catalysts, and valuation notes.
@@ -90,6 +92,7 @@ The private CLI supports:
 
 The current summarizer is a deterministic local placeholder that extracts a short summary,
 recommendation labels, uppercase ticker-like symbols, risks, catalysts, and a citation snippet
-from the imported document text. It does not implement Under the Radar login automation,
-scraping, a password-protected UI, search/Q&A, a private digest, or full LLM-backed
-recommendation extraction.
+from the imported document text. The Under the Radar connector is only a disabled safety stub;
+it does not implement live login, scraping, browser automation, or PDF download. The app also
+does not yet implement a password-protected UI, search/Q&A, a private digest, or full
+LLM-backed recommendation extraction.

@@ -3,6 +3,9 @@
 Private ingestion imports subscribed research the user already possesses. It does not log in to
 Under the Radar, scrape private websites, bypass paywalls, or redistribute paid content.
 
+An Under the Radar connector stub exists for future design, but it is disabled by default and
+does not perform live login, scraping, or downloads.
+
 ## Supported Inputs
 
 `market_pdf_insights.private_ingestion` supports:

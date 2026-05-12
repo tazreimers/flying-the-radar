@@ -29,6 +29,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Private research architecture](docs/private-research-architecture.md)
 - [Private research policy](docs/private-research-policy.md)
 - [Private ingestion](docs/private-ingestion.md)
+- [Optional Under the Radar connector stub](docs/private-undertheradar-connector.md)
 - [Private research settings and storage](docs/private-research-storage.md)
 
 ## Product Overview
@@ -49,6 +50,10 @@ The private research workflow can import user-provided subscribed PDFs, local fi
 saved HTML/text/email files, and manual pasted text into a separate local SQLite store. It can
 list those documents and produce a local placeholder summary for one imported document without
 scraping a logged-in website.
+
+An optional Under the Radar connector stub exists for future personal automation design. It is
+disabled by default, requires explicit environment and terms gates, and still refuses to perform
+a live login or scrape.
 
 ## Source Policy
 
@@ -108,6 +113,9 @@ environment tooling.
 | `MARKET_PDF_INSIGHTS_MODEL` | Optional | Overrides the default OpenAI model. |
 | `FRED_API_KEY` | FRED connector | Keep in the environment or scheduler secret store. |
 | `NEWSAPI_KEY` | NewsAPI connector | Keep in the environment or scheduler secret store. |
+| `UNDERTHERADAR_CONNECTOR_ENABLED` | Future Under the Radar stub | Defaults to disabled; set only after terms confirmation. |
+| `UNDERTHERADAR_USERNAME` | Future Under the Radar stub | Keep in environment/keyring/secret store; never commit. |
+| `UNDERTHERADAR_PASSWORD` | Future Under the Radar stub | Keep in environment/keyring/secret store; never commit. |
 
 No API key is hardcoded. Tests clear these environment variables and use fake clients,
 fixtures, and mocks.
@@ -272,6 +280,7 @@ Core modules:
 - `private_ingestion.py`: private PDFs, local files, saved emails, and manual text imports.
 - `private_research_storage.py`: local SQLite store for private documents, summaries, citations.
 - `private_settings.py`: local-only private settings, retention, and password hash references.
+- `private_undertheradar_connector.py`: disabled connector stub and safety gates.
 - `cli.py`: `market-pdf-insights summarize`, `market-pdf-insights brief ...`, and private commands.
 - `streamlit_app.py`: daily brief dashboard and PDF report tab.
 

@@ -40,7 +40,9 @@ Preferred ingestion paths are user-driven:
 Logged-in automation is disabled by default. It must remain unavailable unless a later connector
 requires explicit user confirmation that subscription terms permit it.
 
-No logged-in Under the Radar connector or scraper exists in the current step.
+The current Under the Radar connector is only a disabled stub. It checks environment, settings,
+terms, and credential gates, then still refuses live login or scraping because no permitted
+automation path has been implemented.
 
 ## Source Attribution
 

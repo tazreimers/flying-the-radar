@@ -74,6 +74,7 @@ class PrivateResearchBoundary(BaseModel):
                     "Logged-in automation requires explicit confirmation that subscription "
                     "terms permit this access pattern."
                 )
+            return
         if method == PrivateResearchAccessMethod.SUBSCRIPTION_EXPORT:
             return
         if method not in _PREFERRED_PRIVATE_ACCESS_METHODS:

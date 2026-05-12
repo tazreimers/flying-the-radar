@@ -11,7 +11,14 @@ import pytest
 def block_live_network_and_real_api_keys(monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep tests on fixtures, fake clients, and explicit in-test credentials."""
 
-    for env_var in ("OPENAI_API_KEY", "FRED_API_KEY", "NEWSAPI_KEY"):
+    for env_var in (
+        "OPENAI_API_KEY",
+        "FRED_API_KEY",
+        "NEWSAPI_KEY",
+        "UNDERTHERADAR_CONNECTOR_ENABLED",
+        "UNDERTHERADAR_USERNAME",
+        "UNDERTHERADAR_PASSWORD",
+    ):
         monkeypatch.delenv(env_var, raising=False)
 
     def blocked_urlopen(*args: Any, **kwargs: Any) -> None:

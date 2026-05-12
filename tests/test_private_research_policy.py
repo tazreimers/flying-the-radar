@@ -44,6 +44,15 @@ def test_logged_in_automation_requires_explicit_terms_confirmation() -> None:
         boundary.assert_access_method_allowed(PrivateResearchAccessMethod.LOGGED_IN_AUTOMATION)
 
 
+def test_logged_in_automation_can_be_explicitly_gated_for_future_connectors() -> None:
+    boundary = PrivateResearchBoundary(
+        logged_in_automation_enabled=True,
+        explicit_terms_confirmation=True,
+    )
+
+    boundary.assert_access_method_allowed(PrivateResearchAccessMethod.LOGGED_IN_AUTOMATION)
+
+
 def test_private_boundary_rejects_redistribution_and_financial_advice() -> None:
     with pytest.raises(ValidationError, match="redistribution"):
         PrivateResearchBoundary(redistribution_allowed=True)
