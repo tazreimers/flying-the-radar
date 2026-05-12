@@ -60,8 +60,10 @@ Global macro sources:
 
 - `fred-api`: credentialed FRED API source using `FRED_API_KEY`, disabled by default.
 - `world-bank-api`: official World Bank API, disabled until connector settings are configured.
-- `imf-api`: official IMF data access, disabled until connector settings are configured.
-- `oecd-api`: official OECD data access, disabled until connector settings are configured.
+- `imf-api`: disabled until explicit SDMX/DataMapper dataset, dimensions, version, and period
+  scope are configured.
+- `oecd-api`: disabled until explicit OECD Data Explorer API query scope and rate-limit budget
+  are configured.
 - `ecb-data-portal`: official ECB data access, disabled until connector settings are
   configured.
 
@@ -69,8 +71,9 @@ News/commentary sources:
 
 - `gdelt-api`: public GDELT API, disabled until query and attribution settings are configured.
 - `newsapi`: credentialed NewsAPI source using `NEWSAPI_KEY`, disabled by default.
-- `bloomberg`: disabled unless licensed API/access or a permitted user export is configured.
-- `reuters`: disabled unless licensed API/access or a permitted user export is configured.
+- `bloomberg`: disabled unless Bloomberg Data License or a permitted user export is configured.
+- `reuters`: disabled unless Reuters Connect/licensed feed or a permitted user export is
+  configured.
 
 Charts/watchlists:
 

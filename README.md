@@ -26,6 +26,7 @@ See:
 - [Source registry](docs/source-registry.md)
 - [Ingestion framework](docs/ingestion-framework.md)
 - [Australian connectors](docs/australian-connectors.md)
+- [Global connectors](docs/global-connectors.md)
 
 ## Features
 
@@ -41,6 +42,8 @@ See:
   JSONL cache support.
 - Australia-specific connector scaffolding for RBA RSS, ABS Data API/exports, permitted ASIC
   exports, and disabled ASX/Market Index placeholders.
+- Global macro/news connector scaffolding for FRED, World Bank, GDELT, NewsAPI, and disabled
+  IMF/OECD/Bloomberg/Reuters placeholders.
 
 ## Install
 
@@ -172,6 +175,8 @@ Core modules:
 - `ingestion.py`: fetches, normalizes, deduplicates, and caches public source items.
 - `australian_connectors.py`: defines legal Australian market-intelligence connectors and
   disabled placeholders.
+- `global_connectors.py`: defines global macro/news connectors, credential config, and
+  licensed-source placeholders.
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.

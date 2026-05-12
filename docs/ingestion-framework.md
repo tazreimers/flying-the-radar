@@ -28,6 +28,8 @@ an automated access method: `api`, `rss`, or `licensed_feed`.
 - `RSSFeedConnector`: parses RSS and Atom feed fixtures or responses.
 - `JsonAPIConnector`: parses JSON responses with configurable item paths.
 - `LocalFixtureConnector`: loads JSON, JSONL, or text files for manual/fixture ingestion.
+- Australia-specific and global-specific connector modules build on these base connectors and
+  keep provider-specific URL building, credentials, and response parsing isolated.
 
 All network access is isolated behind an injectable `http_get` callable, so tests and future
 connectors can run without live network access.

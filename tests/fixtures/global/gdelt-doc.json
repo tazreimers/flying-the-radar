@@ -1,0 +1,22 @@
+{
+  "articles": [
+    {
+      "url": "https://example.test/global-markets-fed",
+      "url_mobile": "",
+      "title": "Global markets steady before Fed decision",
+      "seendate": "20260512083000",
+      "socialimage": "https://example.test/image.jpg",
+      "domain": "example.test",
+      "language": "English",
+      "sourcecountry": "United States"
+    },
+    {
+      "url": "https://example.test/commodities-copper",
+      "title": "Copper rises as China demand improves",
+      "seendate": "20260511120000",
+      "domain": "example.test",
+      "language": "English",
+      "sourcecountry": "Australia"
+    }
+  ]
+}

@@ -348,6 +348,7 @@ def default_source_registry() -> SourceRegistry:
                 ),
                 terms_url="https://fred.stlouisfed.org/docs/api/terms_of_use.html",
                 rate_limit_notes="Respect FRED API limits and cache responses.",
+                metadata={"base_url": "https://api.stlouisfed.org/fred"},
             ),
             _source(
                 source_id="world-bank-api",
@@ -365,6 +366,7 @@ def default_source_registry() -> SourceRegistry:
                 ),
                 terms_url="https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets",
                 rate_limit_notes="Cache and preserve source attribution.",
+                metadata={"base_url": "https://api.worldbank.org/v2"},
             ),
             _source(
                 source_id="imf-api",
@@ -379,7 +381,11 @@ def default_source_registry() -> SourceRegistry:
                     "Official IMF data access. Enable only after connector and terms "
                     "review."
                 ),
-                rate_limit_notes="Cache and preserve source attribution.",
+                rate_limit_notes=(
+                    "Disabled until explicit SDMX dataset, dimensions, and period scope "
+                    "are configured."
+                ),
+                metadata={"api_docs_url": "https://data.imf.org/en/Resource-Pages/IMF-API"},
             ),
             _source(
                 source_id="oecd-api",
@@ -394,7 +400,16 @@ def default_source_registry() -> SourceRegistry:
                     "Official OECD data access. Enable only after connector and terms "
                     "review."
                 ),
-                rate_limit_notes="Cache and preserve source attribution.",
+                rate_limit_notes=(
+                    "Disabled until explicit Data Explorer API query scope and rate-limit "
+                    "budget are configured."
+                ),
+                metadata={
+                    "api_docs_url": (
+                        "https://www.oecd.org/en/data/insights/data-explainers/"
+                        "2024/09/api.html"
+                    )
+                },
             ),
             _source(
                 source_id="ecb-data-portal",
@@ -427,6 +442,7 @@ def default_source_registry() -> SourceRegistry:
                     "settings are configured."
                 ),
                 rate_limit_notes="Use narrow queries and cache responses.",
+                metadata={"base_url": "https://api.gdeltproject.org/api/v2/doc/doc"},
             ),
             _credentialed_source(
                 source_id="newsapi",
@@ -441,6 +457,7 @@ def default_source_registry() -> SourceRegistry:
                 terms_notes="Credentialed news API. Use only within plan/licence terms.",
                 terms_url="https://newsapi.org/terms",
                 rate_limit_notes="Respect plan limits and usage restrictions.",
+                metadata={"base_url": "https://newsapi.org/v2/everything"},
             ),
             _source(
                 source_id="bloomberg",
@@ -560,6 +577,7 @@ def _credentialed_source(
     api_docs_url: str | None = None,
     terms_url: str | None = None,
     rate_limit_notes: str | None = None,
+    metadata: dict[str, Any] | None = None,
 ) -> SourceDefinition:
     """Create a disabled-by-default credentialed source definition."""
 
@@ -586,6 +604,7 @@ def _credentialed_source(
             required_env_vars=env_vars,
             credential_notes="Read credentials from environment variables only.",
         ),
+        metadata=metadata or {},
     )
 
 
