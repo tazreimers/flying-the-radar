@@ -1,0 +1,34 @@
+Add daily brief rendering for email, Markdown, JSON, and terminal output.
+
+Goal:
+- Render DailyMarketBrief into clear daily outputs.
+
+Requirements:
+- Create renderers for:
+  - plain text email body
+  - HTML email body
+  - Markdown
+  - JSON
+  - concise terminal summary
+- Include sections:
+  - executive summary
+  - yesterday recap
+  - day ahead
+  - top themes
+  - Australia market
+  - global macro
+  - commodities/rates/currencies
+  - watchlist impacts
+  - risks
+  - sources/citations
+  - verification flags
+  - disclaimer
+- Add an email sender abstraction but do not hardcode SMTP/provider credentials.
+- Implement a dry-run email writer that saves `.eml` or HTML/text output locally.
+- Add configurable sender/recipient settings for later.
+- Add tests for rendering and dry-run output.
+
+Acceptance criteria:
+- The system can save JSON, Markdown, HTML, and text outputs from a fixture DailyMarketBrief.
+- No real email is sent in tests.
+

@@ -1,0 +1,26 @@
+Implement global macro and news connectors using legal APIs.
+
+Goal:
+- Add global macro/news ingestion suitable for a daily morning market brief.
+
+Target connectors:
+- FRED API connector for macro series.
+- World Bank API connector for indicators.
+- IMF/OECD connectors or disabled stubs if API scope is too broad for this step.
+- GDELT news connector.
+- NewsAPI connector as optional credentialed source.
+- Bloomberg/Reuters disabled licensed-source placeholders with clear docs; do not scrape.
+
+Requirements:
+- Define configuration for API keys, regions, watchlist terms, macro series, and date ranges.
+- Normalize all fetched items into the shared source item model.
+- Include rate-limit and licence metadata per source.
+- Add fixture-driven tests for parsing and normalization.
+- Keep API keys optional and never hardcoded.
+
+Acceptance criteria:
+- At least FRED-style macro fixture ingestion and GDELT/NewsAPI-style news fixture ingestion
+  are tested.
+- Missing credentials produce helpful disabled-source messages.
+- No live API calls in tests.
+

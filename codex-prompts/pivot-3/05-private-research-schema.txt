@@ -1,0 +1,46 @@
+Design the private research schema for Under the Radar-style stock recommendations.
+
+Goal:
+- Create structured models that make subscribed research easier to understand without
+  redistributing full source content.
+
+Models should include:
+- PrivateResearchDocument
+- StockRecommendation
+- RecommendationChange
+- ThesisPoint
+- RiskPoint
+- ValuationNote
+- Catalyst
+- PortfolioWatchItem
+- SourceExcerpt
+- PersonalActionQuestion
+
+Fields should capture:
+- company name
+- ticker
+- exchange
+- recommendation/source rating
+- stated target price or valuation if present
+- recommendation date
+- time horizon
+- thesis
+- bullish arguments
+- bearish arguments
+- risks
+- catalysts
+- valuation assumptions
+- numbers to verify
+- source citation
+- confidence score
+
+Requirements:
+- Keep excerpts short.
+- Store source document references and page/section when available.
+- Include validation and example JSON.
+- Add tests.
+
+Acceptance criteria:
+- Schema supports summarizing stock recommendations without copying full articles.
+- Validation rejects malformed ratings/confidence values.
+

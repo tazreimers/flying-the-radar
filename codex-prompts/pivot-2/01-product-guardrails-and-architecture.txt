@@ -1,0 +1,34 @@
+Pivot 2: public/legal daily market-intelligence brief.
+
+Define the product boundaries and architecture for a compliant market-intelligence system.
+
+Goal:
+- Build a daily Australian and global market-intelligence briefing app using legal, permitted
+  sources only.
+- Output a morning digest by email/output channel, with sender/recipient configuration left
+  configurable for later.
+- Summarize and analyze factual market information only. Do not provide financial advice.
+
+Requirements:
+- Rename/refactor project language where appropriate from PDF-only insight extraction toward
+  daily market intelligence while preserving existing PDF summarization functionality.
+- Document the boundary between factual information, general market commentary, and personal
+  financial advice.
+- Add a clear source policy: no scraping sites that prohibit automated access; use APIs, RSS,
+  paid/licensed feeds, user-provided files, or email ingestion only.
+- Preserve source attribution, URLs, retrieval timestamp, and licence/terms notes in metadata.
+- Design extension points for source connectors, summarizers, output renderers, and schedules.
+- Keep OpenAI optional and configurable through environment variables.
+- Keep tests offline with mocked connector and LLM calls.
+
+Deliverables:
+- Architecture notes in docs or README.
+- Source policy document or section.
+- Module layout proposal implemented with minimal scaffolding if needed.
+- Tests for configuration and safety guardrails where applicable.
+
+Acceptance criteria:
+- Existing tests continue to pass.
+- New architecture is clear, modular, and does not require live API calls.
+- README explains that the app is not investment advice and does not bypass paywalls or terms.
+

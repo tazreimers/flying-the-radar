@@ -1,0 +1,51 @@
+Create a source registry and compliance model for public market-intelligence inputs.
+
+Goal:
+- Centralize all data source definitions, legal-use notes, credentials, rate limits, and fetch
+  strategy.
+
+Initial source categories:
+- Australian market:
+  - ASX official announcements/data where legally available.
+  - RBA RSS/statistics pages/APIs.
+  - ABS data APIs.
+  - ASIC media releases and market announcements.
+  - Market Index only if a permitted API/feed/licence is available; do not scrape pages.
+- Global macro:
+  - FRED API.
+  - World Bank API.
+  - IMF data APIs.
+  - OECD data APIs.
+  - ECB/central-bank RSS or data APIs where relevant.
+- News/commentary:
+  - GDELT API.
+  - NewsAPI or other licensed news APIs.
+  - RSS feeds that explicitly allow use.
+  - Bloomberg/Reuters only via licensed API or user-provided subscription export; do not scrape.
+- Charts/watchlists:
+  - TradingView only through user exports, alerts/webhooks, embeds, or permitted API/licensed
+    access; do not screen-scrape or automate pages.
+
+Requirements:
+- Add typed models for SourceDefinition, SourceCapability, SourceTerms, SourceCredentialPolicy,
+  and SourceFetchResult.
+- Add a registry that can be configured from code and later from YAML/TOML/env.
+- Include fields for:
+  - source id
+  - display name
+  - category
+  - homepage/API docs URL
+  - access method: api, rss, email, upload, licensed, manual, disabled
+  - auth type
+  - rate limit notes
+  - terms notes
+  - redistribution allowed flag
+  - enabled flag
+- Explicitly mark prohibited/unknown scraping sources as disabled until licensed/approved.
+- Add tests covering registry loading, disabled-source behavior, and compliance metadata.
+
+Acceptance criteria:
+- No connector fetches a disabled or unapproved source.
+- Source metadata is included in downstream artifacts.
+- Tests run without network access.
+

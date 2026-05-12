@@ -1,0 +1,32 @@
+Build private ingestion through upload, local files, and email/manual import.
+
+Goal:
+- Let the user ingest Under the Radar PDFs/emails they already possess without scraping the
+  logged-in website.
+
+Requirements:
+- Add importers for:
+  - uploaded PDFs
+  - local PDF directory
+  - saved HTML/text email files
+  - manual pasted text
+- Extract and normalize:
+  - document title
+  - issue date
+  - source type
+  - original filename
+  - extracted text
+  - sections/headings
+  - source metadata
+- Deduplicate documents by file hash/source/date/title.
+- Add CLI commands:
+  - `market-pdf-insights private import path/to/file_or_dir`
+  - `market-pdf-insights private list`
+  - `market-pdf-insights private summarize DOCUMENT_ID`
+- Add tests using short synthetic fixtures only.
+
+Acceptance criteria:
+- A user can import a subscribed PDF they downloaded manually.
+- No website login or scraping is required.
+- Tests run offline and avoid copyrighted content.
+

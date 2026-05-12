@@ -1,0 +1,36 @@
+Build the ingestion framework for public daily market-intelligence sources.
+
+Goal:
+- Add a connector interface that can fetch or load source items without coupling to the LLM.
+
+Requirements:
+- Define models such as RawSourceItem, NormalizedMarketItem, IngestionRun, and ConnectorResult.
+- Connector interface should support:
+  - fetch since timestamp
+  - source metadata
+  - retry/backoff hook
+  - deduplication key
+  - dry-run/mock mode
+- Add connectors for:
+  - RSS feeds.
+  - JSON API endpoints.
+  - local fixtures/manual files for tests.
+- Normalize items into common fields:
+  - title
+  - body/summary text
+  - URL
+  - source id/name
+  - published_at
+  - fetched_at
+  - category
+  - tickers/assets if known
+  - source terms metadata
+- Add persistence for fetched items using a simple local SQLite database or JSONL cache.
+- Implement deduplication by source id plus URL/id/title/date.
+- Keep network fetch code isolated and fully mockable.
+
+Acceptance criteria:
+- Tests cover RSS/API fixture parsing, normalization, deduplication, and disabled sources.
+- No test depends on live network access.
+- Existing PDF summarization remains unaffected.
+

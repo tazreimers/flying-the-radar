@@ -1,0 +1,26 @@
+Harden test coverage for the public daily market-intelligence MVP.
+
+Goal:
+- Ensure all connectors, schemas, renderers, CLI commands, and LLM paths are testable offline.
+
+Requirements:
+- Add fixture files for representative RSS, JSON API, macro data, and news items.
+- Add MockConnector and MockBriefLLMClient.
+- Cover:
+  - source registry loading
+  - disabled/prohibited source behavior
+  - connector normalization
+  - deduplication
+  - DailyMarketBrief validation
+  - LLM malformed JSON retry
+  - renderer output
+  - CLI end-to-end dry run
+  - Streamlit helper functions
+- Ensure tests never use real API keys or network calls.
+- Keep fixtures short and copyright-safe.
+
+Acceptance criteria:
+- `python3 -m pytest` passes offline.
+- `ruff check .` passes.
+- Test suite clearly demonstrates the MVP path from source fixtures to saved daily brief.
+

@@ -1,0 +1,32 @@
+Polish documentation and deployment guidance for the public daily market-intelligence app.
+
+Goal:
+- Make the public-market daily brief product understandable and safe to run.
+
+README/docs should include:
+- Product overview.
+- Legal source policy.
+- Supported and disabled sources.
+- Installation.
+- Environment variables.
+- CLI examples.
+- Streamlit dashboard.
+- Email dry-run and future sender configuration.
+- Scheduling examples using cron or GitHub Actions, with secrets guidance.
+- Architecture diagram in Mermaid.
+- Limitations.
+- Financial disclaimer.
+- Contribution notes.
+
+Requirements:
+- Document that Bloomberg/Reuters/TradingView/Market Index/ASX pages must not be scraped unless
+  permitted by licence/API/terms.
+- Document where source citations are stored and how to verify claims.
+- Include examples using fixture/mock mode.
+- Ensure all tests pass.
+
+Acceptance criteria:
+- README is public-GitHub ready.
+- No secrets or live credentials are committed.
+- Tests and lint pass.
+

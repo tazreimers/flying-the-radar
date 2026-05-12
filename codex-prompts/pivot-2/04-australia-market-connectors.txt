@@ -1,0 +1,28 @@
+Implement legal Australian market-intelligence connectors.
+
+Goal:
+- Add Australian market and macro connectors using official APIs/RSS or clearly permitted
+  public sources.
+
+Target connectors:
+- RBA feed/statistics/news connector.
+- ABS data/news connector.
+- ASIC media releases connector.
+- ASX announcements connector only if using a legally permitted official endpoint, licensed
+  provider, or documented user-provided export. If not clearly permitted, add a disabled
+  stub with instructions.
+- Market Index connector only as a disabled/licensed-source placeholder unless a permitted API
+  or explicit permission is configured.
+
+Requirements:
+- Each connector must declare source metadata and terms notes.
+- Add fixtures for representative Australian macro/market items.
+- Normalize source items into the shared ingestion model.
+- Add tests for each connector using fixtures.
+- Include clear errors when a source is disabled or credentials/licence are missing.
+
+Acceptance criteria:
+- The app can ingest RBA/ABS/ASIC fixture data through the shared framework.
+- ASX/Market Index behavior is legally conservative: do not scrape pages without permission.
+- Tests remain offline and deterministic.
+

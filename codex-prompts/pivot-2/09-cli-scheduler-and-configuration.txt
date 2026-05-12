@@ -1,0 +1,32 @@
+Add CLI commands and configuration for the daily public market brief.
+
+Goal:
+- Provide operational commands for running ingestion and generating the daily brief.
+
+Commands:
+- `market-pdf-insights brief run`
+- `market-pdf-insights brief sources`
+- `market-pdf-insights brief validate-config`
+- `market-pdf-insights brief send --dry-run`
+
+Options:
+- `--config path/to/config.toml`
+- `--date YYYY-MM-DD`
+- `--output brief.json`
+- `--markdown brief.md`
+- `--html brief.html`
+- `--email-dry-run brief.eml`
+- `--llm placeholder|openai`
+- `--model MODEL_NAME`
+
+Requirements:
+- Add TOML/YAML-style configuration support using standard library TOML where possible.
+- Include source enablement, API keys via environment variables, watchlist, region settings,
+  output settings, and email settings.
+- Add helpful validation errors.
+- Add scheduling guidance but do not require a background daemon unless clearly scoped.
+
+Acceptance criteria:
+- CLI can run fully from fixtures/mock sources and save outputs.
+- Tests cover config validation and dry-run outputs.
+

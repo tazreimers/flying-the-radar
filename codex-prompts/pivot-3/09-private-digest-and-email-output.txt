@@ -1,0 +1,25 @@
+Add private digest and optional email/output rendering for subscribed research.
+
+Goal:
+- Produce a private digest that makes new Under the Radar material easier to review.
+
+Requirements:
+- Render:
+  - private daily/weekly digest
+  - per-document summary
+  - per-ticker summary
+  - recommendation change log
+- Output formats:
+  - JSON
+  - Markdown
+  - HTML
+  - email dry-run `.eml`
+- Do not send real email by default.
+- Include source document references, short citations, and disclaimers.
+- Add configuration for future sender/recipient settings without hardcoding credentials.
+- Add tests for renderers and dry-run email output.
+
+Acceptance criteria:
+- User can generate a private Markdown/HTML digest from fixture imported docs.
+- Tests do not send email and do not use live APIs.
+

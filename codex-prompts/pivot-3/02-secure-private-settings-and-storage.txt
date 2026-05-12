@@ -1,0 +1,26 @@
+Implement secure settings and local storage for private subscribed research.
+
+Goal:
+- Provide safe local configuration and storage for personal-use research ingestion.
+
+Requirements:
+- Add private settings model with:
+  - local data directory
+  - encryption/secrets strategy notes
+  - import sources enabled flags
+  - retention policy
+  - password protection settings for the app UI
+- Do not store raw passwords in plaintext.
+- Prefer environment variables, OS keyring, or a documented secrets manager.
+- Add local SQLite storage for document metadata, extracted text references, summaries, and
+  citations.
+- Store raw subscribed documents only if explicitly configured; default to metadata and
+  summaries where practical.
+- Add retention/deletion commands or functions.
+- Add tests for settings validation and storage CRUD using temp directories.
+
+Acceptance criteria:
+- No secrets are written to repo files.
+- Storage can be initialized, queried, and cleaned in tests.
+- User can configure private local-only operation.
+

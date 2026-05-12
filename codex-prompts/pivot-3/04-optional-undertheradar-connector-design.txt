@@ -1,0 +1,24 @@
+Design an optional Under the Radar logged-in connector, but do not enable scraping by default.
+
+Goal:
+- Prepare for future personal automation while respecting subscription terms and user consent.
+
+Requirements:
+- Add a disabled-by-default connector stub for Under the Radar.
+- The connector must refuse to run unless:
+  - `UNDERTHERADAR_CONNECTOR_ENABLED=true`
+  - the user confirms they have permission under their subscription terms
+  - credentials are supplied through a secure mechanism
+- Do not implement brittle scraping unless explicitly requested later.
+- Prefer alternatives:
+  - user downloads PDFs manually
+  - user forwards emails
+  - official export/feed/API if available
+  - browser automation only after explicit legal/terms confirmation
+- Add clear errors explaining why the connector is disabled.
+- Add tests proving it is disabled by default and never uses real credentials.
+
+Acceptance criteria:
+- No live Under the Radar login occurs.
+- The code path is safe, explicit, and documented for possible future work.
+

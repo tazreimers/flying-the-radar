@@ -1,0 +1,48 @@
+Design the structured schema for the daily public market-intelligence brief.
+
+Goal:
+- Create Pydantic models for a daily morning brief built from public/legal source items.
+
+Models should include:
+- DailyMarketBrief
+- BriefSection
+- MarketTheme
+- AssetMention
+- MacroEvent
+- CalendarEvent
+- SourceCitation
+- VerificationFlag
+- WatchlistImpact
+
+DailyMarketBrief should include:
+- briefing_date
+- generated_at
+- title
+- executive_summary
+- yesterday_recap
+- day_ahead
+- market_stance: bullish, bearish, neutral, mixed, unclear
+- top_themes
+- australia_market
+- global_macro
+- commodities
+- currencies_and_rates
+- watchlist_impacts
+- calendar
+- risks
+- sources
+- verification_flags
+- confidence_score
+- disclaimer
+
+Requirements:
+- Keep source citations first-class.
+- Include validation for dates, confidence score, stance, and non-empty citations where claims
+  are source-backed.
+- Add example JSON.
+- Add tests for validation and serialization.
+
+Acceptance criteria:
+- The schema can represent a daily email/web brief without containing full copyrighted articles.
+- Source snippets are short and attribution is preserved.
+

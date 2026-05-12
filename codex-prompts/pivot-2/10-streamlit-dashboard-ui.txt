@@ -1,0 +1,28 @@
+Build a clean Streamlit dashboard for the daily public market brief.
+
+Goal:
+- Add a web UI for configuring sources, generating a daily brief, reviewing citations, and
+  downloading outputs.
+
+Requirements:
+- Keep UI simple, work-focused, and dense enough for repeated daily use.
+- Screens/sections:
+  - source status and compliance notes
+  - run brief button
+  - executive summary
+  - yesterday recap
+  - day ahead
+  - top themes and risks
+  - watchlist impacts
+  - source citations
+  - verification flags
+  - download JSON/Markdown/HTML
+- Include disabled-source messaging for sources requiring permission/licence.
+- Use existing app patterns and renderers.
+- Avoid implying investment advice.
+- Add helper tests for non-Streamlit business logic.
+
+Acceptance criteria:
+- `streamlit run ...` starts the dashboard.
+- The app can render a fixture DailyMarketBrief without live APIs.
+

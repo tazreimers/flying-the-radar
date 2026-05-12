@@ -1,0 +1,42 @@
+Pivot 3: private personal-use Under the Radar research companion.
+
+Define the product boundaries and architecture for personal-use ingestion of subscribed
+Under the Radar material.
+
+Goal:
+- Help a subscriber privately ingest, organize, summarize, and understand Under the Radar
+  research they are already entitled to access.
+- Do not redistribute paid content.
+- Do not provide personalized financial advice.
+
+Important constraints:
+- A login does not automatically grant the right to scrape, copy, store, or redistribute
+  paywalled content.
+- Prefer user-provided PDFs/emails/downloads over automated login scraping.
+- Any logged-in automation must be disabled by default and require explicit user confirmation
+  that their subscription terms permit it.
+- This branch is for single-user/private use first.
+
+Requirements:
+- Add a private-research architecture separate from the public daily brief.
+- Create docs explaining:
+  - personal-use scope
+  - no redistribution
+  - copyright and subscription terms caution
+  - no financial advice
+  - source attribution
+- Design modules for:
+  - private ingestion
+  - secure credential/secrets handling
+  - document library
+  - recommendation extraction
+  - personal digest
+  - search/Q&A
+  - password-protected local UI
+- Preserve existing PDF summarization functionality.
+
+Acceptance criteria:
+- Clear docs and module boundaries exist.
+- No logged-in scraper is implemented yet.
+- Tests remain offline.
+

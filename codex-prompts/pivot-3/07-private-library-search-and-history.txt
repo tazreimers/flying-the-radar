@@ -1,0 +1,29 @@
+Add a private research library with search, history, and comparison.
+
+Goal:
+- Help the user understand how Under the Radar coverage changes over time.
+
+Requirements:
+- Store imported document summaries and stock recommendation records.
+- Add search/filter by:
+  - ticker
+  - company
+  - date range
+  - recommendation/rating
+  - sector
+  - catalyst/risk keyword
+- Add comparison helpers:
+  - latest recommendation for ticker
+  - changes between two documents
+  - recommendation timeline
+  - unresolved verification questions
+- Add CLI commands:
+  - `market-pdf-insights private search --ticker XYZ`
+  - `market-pdf-insights private history --ticker XYZ`
+  - `market-pdf-insights private compare DOC_A DOC_B`
+- Add tests using synthetic fixtures.
+
+Acceptance criteria:
+- User can query private imported research locally.
+- Tests cover storage, search, and comparison logic.
+

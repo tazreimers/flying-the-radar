@@ -8,6 +8,22 @@ or the OpenAI API.
 The project is intended for document review and research workflow automation. It does not
 provide investment recommendations.
 
+## Pivot 2: Daily Market Intelligence
+
+The next product direction is a public daily market-intelligence brief built from permitted
+sources only: official APIs, RSS feeds, licensed data providers, user-provided files, or
+email/manual ingestion. The app must not scrape sites that prohibit automated access, bypass
+paywalls, or redistribute copyrighted source material.
+
+This branch is scoped to factual information and general market commentary. It should not
+personalize output to a user's objectives, financial situation, or needs, and it should not
+provide buy/sell/hold recommendations.
+
+See:
+
+- [Market intelligence architecture](docs/market-intelligence-architecture.md)
+- [Source policy](docs/source-policy.md)
+
 ## Features
 
 - PDF text extraction with page markers and clear PDF loading errors.
@@ -149,6 +165,7 @@ Core modules:
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.
+- `source_policy.py`: defines Pivot 2 source-use and advice-boundary guardrails.
 - `cli.py`: exposes the `market-pdf-insights` command.
 - `streamlit_app.py`: exposes the upload-and-summarize web app.
 
@@ -185,6 +202,8 @@ python examples/summarize_pdf.py reports/small-caps-report-issue-700.pdf
   against primary sources.
 - This tool does not fetch live market data, filings, or news.
 - The Streamlit app stores uploaded PDFs only in temporary files during processing.
+- Pivot 2 connectors must use permitted APIs, RSS feeds, licensed sources, user-provided
+  content, or email/manual ingestion; prohibited scraping remains out of scope.
 
 ## Financial Disclaimer
 
@@ -205,4 +224,3 @@ Before opening a pull request:
 - Avoid committing PDFs, generated reports, cache directories, or secrets.
 - Do not include real API keys in tests, fixtures, examples, or docs.
 - Prefer mock clients in tests so CI does not make live API calls.
-

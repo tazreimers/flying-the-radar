@@ -1,0 +1,26 @@
+Build the LLM synthesis layer for public daily market-intelligence briefs.
+
+Goal:
+- Summarize normalized public/legal source items into a DailyMarketBrief.
+
+Requirements:
+- Reuse the existing LLM client patterns where practical.
+- First summarize source items into structured notes grouped by source/category.
+- Then synthesize a final DailyMarketBrief.
+- Use Pydantic validation and retry malformed JSON.
+- Preserve citations and retrieval metadata.
+- Do not provide financial advice or buy/sell/hold recommendations.
+- Include prompt instructions to:
+  - distinguish facts from commentary
+  - flag unsupported or externally verifiable claims
+  - avoid copying long source text
+  - summarize the previous day and day ahead separately
+  - call out Australia, global macro, rates, currencies, commodities, sectors, and watchlist
+    impacts
+- Add mock LLM client tests.
+
+Acceptance criteria:
+- Tests demonstrate fixture source items becoming a validated DailyMarketBrief.
+- No tests call live OpenAI.
+- Output includes citations and disclaimer.
+

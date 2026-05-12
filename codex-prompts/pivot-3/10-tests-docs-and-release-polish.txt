@@ -1,0 +1,33 @@
+Finalize the private subscribed-research companion.
+
+Goal:
+- Make Pivot 3 usable, documented, and safe for personal use.
+
+Requirements:
+- Add tests for:
+  - private settings
+  - storage
+  - upload/local/email import
+  - disabled Under the Radar connector
+  - private schema validation
+  - mocked LLM summarization
+  - search/history/compare
+  - private UI helper logic
+  - digest rendering
+- Update README/docs with:
+  - personal-use scope
+  - no redistribution warning
+  - no financial advice disclaimer
+  - import workflow
+  - optional disabled logged-in connector explanation
+  - password-protected Streamlit UI
+  - storage/retention guidance
+  - testing instructions
+- Ensure no real Under the Radar content, credentials, or API keys are committed.
+- Ensure all tests and lint pass.
+
+Acceptance criteria:
+- Private branch is useful with user-provided subscribed files.
+- No logged-in scraping occurs by default.
+- Public and private workflows remain clearly separated.
+

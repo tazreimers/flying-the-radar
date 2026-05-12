@@ -1,0 +1,27 @@
+Build the private subscribed-research summarizer.
+
+Goal:
+- Summarize imported Under the Radar documents into private structured research summaries.
+
+Requirements:
+- Reuse the existing PDF/chunking/LLM architecture.
+- First summarize chunks into private research notes.
+- Then synthesize:
+  - document summary
+  - all stock recommendations mentioned
+  - changes from previous recommendations if detected
+  - valuation/risk/catalyst notes
+  - questions the user should verify
+- Prompt safety:
+  - summarize what the source says
+  - do not generate new buy/sell/hold advice
+  - do not tailor advice to user circumstances
+  - preserve source attribution and general-advice disclaimers
+  - flag uncertainty and claims needing verification
+- Add mocked LLM tests, including malformed JSON retry.
+
+Acceptance criteria:
+- Fixture documents produce validated private research summaries.
+- No live OpenAI calls in tests.
+- Output is framed as source-summary, not financial advice.
+
