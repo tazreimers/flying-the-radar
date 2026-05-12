@@ -14,7 +14,7 @@ from market_pdf_insights.llm_client import (
     PlaceholderLLMClient,
     SummaryClient,
 )
-from market_pdf_insights.report_rendering import render_markdown_report
+from market_pdf_insights.report_rendering import format_asset, render_markdown_report
 from market_pdf_insights.summarizer import SummarizerConfig, summarize_pdf
 
 
@@ -118,7 +118,7 @@ def _render_summary(summary: MarketInsightReport) -> None:
         _render_bullets("Bullish Points", summary.bullish_arguments)
         _render_bullets(
             "Mentioned Assets",
-            [_format_asset(asset) for asset in summary.companies_or_tickers_mentioned],
+            [format_asset(asset) for asset in summary.companies_or_tickers_mentioned],
         )
     with right_col:
         _render_bullets("Bearish Risks", [risk.description for risk in summary.risks])
@@ -154,16 +154,6 @@ def _render_bullets(title: str, items: Sequence[str]) -> None:
         return
     for item in items:
         st.markdown(f"- {item}")
-
-
-def _format_asset(asset: object) -> str:
-    """Format an asset for display."""
-
-    if asset.ticker and asset.name and asset.name != asset.ticker:
-        return f"{asset.name} ({asset.ticker})"
-    if asset.ticker:
-        return asset.ticker
-    return str(asset.name)
 
 
 if __name__ == "__main__":

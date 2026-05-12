@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from market_pdf_insights.insight_schema import MarketInsightReport
+from market_pdf_insights.insight_schema import MarketInsightReport, MentionedAsset
 
 
 def render_terminal_summary(
@@ -30,7 +30,7 @@ def render_terminal_summary(
     _append_section(
         lines,
         "Assets",
-        [_format_asset(asset) for asset in summary.companies_or_tickers_mentioned[:8]],
+        [format_asset(asset) for asset in summary.companies_or_tickers_mentioned[:8]],
     )
     _append_section(lines, "Saved", list(saved_paths))
 
@@ -73,7 +73,7 @@ def render_markdown_report(summary: MarketInsightReport) -> str:
     _append_markdown_list(
         lines,
         "Assets Mentioned",
-        [_format_asset(asset) for asset in summary.companies_or_tickers_mentioned],
+        [format_asset(asset) for asset in summary.companies_or_tickers_mentioned],
     )
     _append_markdown_list(
         lines,
@@ -114,7 +114,7 @@ def _wrap_value(label: str, value: str) -> str:
     return f"{label}: {value}"
 
 
-def _format_asset(asset: object) -> str:
+def format_asset(asset: MentionedAsset) -> str:
     """Format an asset for human-readable output."""
 
     if asset.ticker and asset.name and asset.name != asset.ticker:
@@ -122,4 +122,3 @@ def _format_asset(asset: object) -> str:
     if asset.ticker:
         return asset.ticker
     return str(asset.name)
-

@@ -17,6 +17,7 @@ from market_pdf_insights.llm_client import (
     PlaceholderLLMClient,
 )
 from market_pdf_insights.pdf_loader import extract_pdf_text
+from market_pdf_insights.report_rendering import render_markdown_report, render_terminal_summary
 from market_pdf_insights.summarizer import MarketPdfSummarizer, summarize_pdf
 
 __all__ = [
@@ -34,6 +35,8 @@ __all__ = [
     "Risk",
     "VerificationItem",
     "extract_pdf_text",
+    "render_markdown_report",
+    "render_terminal_summary",
     "summarize_pdf",
 ]
 

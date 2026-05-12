@@ -31,7 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     summarize_parser = subparsers.add_parser(
         "summarize",
-        help="Summarize a PDF and emit structured JSON.",
+        help="Summarize a PDF and save optional JSON or Markdown reports.",
     )
     summarize_parser.add_argument("pdf_path", type=Path, help="Path to a PDF file.")
     summarize_parser.add_argument(
