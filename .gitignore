@@ -22,6 +22,10 @@ env/
 
 # Local generated outputs
 .cache/
+.private-research/
+private-research*.db
+private-research*.sqlite
+private-research*.sqlite3
 outputs/
 *.eml
 

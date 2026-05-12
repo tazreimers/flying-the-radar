@@ -49,9 +49,12 @@ flowchart TD
 
 - `private_research_policy.py`: private-use guardrails and source attribution models.
   Implemented now.
+- `private_settings.py`: local-only settings, retention policy, and password hash references.
+  Implemented now.
+- `private_research_storage.py`: SQLite document, summary, and citation metadata store.
+  Implemented now.
 - `private_ingestion.py`: upload, local-file, email, manual, and permitted export importers.
   No logged-in scraping.
-- `private_settings.py`: local settings and secret references. No committed credentials.
 - `private_library.py`: private document metadata, storage, and history. Separate from the
   public brief cache.
 - `private_recommendations.py`: extract recommendations, risks, catalysts, and valuation notes.
@@ -75,5 +78,7 @@ Shared code is allowed only where boundaries are clear:
 
 ## Current Step
 
-This step adds documentation and private-use boundary models only. It does not implement storage,
-email import, Under the Radar login automation, scraping, password UI, or private digest output.
+The current implementation has private-use boundary models, secure local settings, password hash
+helpers, and local SQLite storage for metadata, summaries, and citations. It does not implement
+email import, Under the Radar login automation, scraping, password UI, recommendation extraction,
+or private digest output.

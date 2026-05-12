@@ -28,6 +28,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Deployment guide](docs/deployment.md)
 - [Private research architecture](docs/private-research-architecture.md)
 - [Private research policy](docs/private-research-policy.md)
+- [Private research settings and storage](docs/private-research-storage.md)
 
 ## Product Overview
 
