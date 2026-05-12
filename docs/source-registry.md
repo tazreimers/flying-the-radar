@@ -90,3 +90,5 @@ source = default_source_registry().assert_fetch_allowed("source-id")
 
 before making network requests. Downstream artifacts should preserve the `SourceAttribution`
 created by `source.attribution(...)` and the source `SourceTerms`.
+
+The ingestion framework enforces the same rule when a network connector is created.

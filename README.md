@@ -24,6 +24,7 @@ See:
 - [Market intelligence architecture](docs/market-intelligence-architecture.md)
 - [Source policy](docs/source-policy.md)
 - [Source registry](docs/source-registry.md)
+- [Ingestion framework](docs/ingestion-framework.md)
 
 ## Features
 
@@ -35,6 +36,8 @@ See:
 - Streamlit app for upload, summary review, and report downloads.
 - OpenAI-backed summarization with JSON validation and retry handling.
 - Placeholder and mock clients for local development and tests.
+- Public-source ingestion framework with RSS, JSON API, local fixture, deduplication, and
+  JSONL cache support.
 
 ## Install
 
@@ -163,6 +166,7 @@ Core modules:
 - `pdf_loader.py`: validates PDF paths and extracts ordered page text.
 - `chunker.py`: splits long text into overlapping chunks.
 - `insight_schema.py`: defines Pydantic report models.
+- `ingestion.py`: fetches, normalizes, deduplicates, and caches public source items.
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.
@@ -202,7 +206,8 @@ python examples/summarize_pdf.py reports/small-caps-report-issue-700.pdf
   produce little or no useful text.
 - Numbers, dates, forecasts, prices, valuation claims, and market data should be verified
   against primary sources.
-- This tool does not fetch live market data, filings, or news.
+- Live market-data, filing, and news connectors are disabled until source-specific access
+  settings and terms are configured.
 - The Streamlit app stores uploaded PDFs only in temporary files during processing.
 - Pivot 2 connectors must use permitted APIs, RSS feeds, licensed sources, user-provided
   content, or email/manual ingestion; prohibited scraping remains out of scope.
