@@ -58,10 +58,12 @@ The store supports:
 
 The current private workflow can import user-provided PDFs, local files/directories, saved
 HTML/text/email files, and manual pasted text into this store. It can also create a local
-placeholder summary from extracted text.
+placeholder summary from extracted text. The Streamlit private research tab can use this same
+store for upload/manual import, local search, recommendation history, citations, and private
+JSON/Markdown downloads behind an optional password hash gate.
 
 It does not implement Under the Radar live login or scraping. The optional Under the Radar
 connector is only a disabled safety stub for future design. The app also does not yet implement
-password UI, search/Q&A, a private digest, or LLM-backed recommendation extraction. Later steps
-should build on these models while preserving the no-redistribution and no-personal-advice
-boundaries.
+natural-language search/Q&A, a private digest, or production multi-user access control. Later
+steps should build on these models while preserving the no-redistribution and
+no-personal-advice boundaries.

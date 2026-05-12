@@ -15,7 +15,7 @@ does not perform live login, scraping, or downloads.
 - saved HTML/text email files;
 - RFC 822 `.eml` email files;
 - manually pasted text;
-- uploaded PDF bytes from a future UI.
+- uploaded PDF/email/text bytes from the private Streamlit UI.
 
 Each import is normalized into a private document record with:
 

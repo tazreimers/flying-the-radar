@@ -36,7 +36,7 @@ flowchart TD
     B --> C[Private source attribution]
     C --> D[Document library]
     D --> E[Recommendation extraction]
-    D --> F[Search and Q&A]
+    D --> F[Search]
     E --> G[Private research summary]
     F --> G
     G --> H[Personal digest]
@@ -68,7 +68,8 @@ flowchart TD
   No personal advice.
 - `private_digest.py`: render private single-user digests. No redistribution workflow.
 - `private_search.py`: search/Q&A over local private records. Cite local source records.
-- `private_ui.py`: password-protected local UI screens. No unauthenticated private content.
+- `streamlit_app.py`: password-protected local private research tab. No unauthenticated private
+  content when private password protection is enabled.
 
 ## Separation From Pivot 2
 
@@ -103,7 +104,11 @@ offline; the OpenAI client is injectable and retries malformed JSON.
 
 The current private library indexes structured summaries into local recommendation rows and
 supports ticker/company/date/rating/sector/keyword search, recommendation history, document
-comparison, and unresolved verification questions. The Under the Radar connector is only a
-disabled safety stub; it does not implement live login, scraping, browser automation, or PDF
-download. The app also does not yet implement a password-protected UI, natural-language
-search/Q&A, or a private digest.
+comparison, and unresolved verification questions. The Streamlit app now includes a private
+research tab with a configurable password gate, import workflow, document library, latest
+summaries, recommendation detail, ticker history, risks/catalysts/numbers-to-verify, source
+citations, and private JSON/Markdown downloads.
+
+The Under the Radar connector is only a disabled safety stub; it does not implement live login,
+scraping, browser automation, or PDF download. The app also does not yet implement
+natural-language search/Q&A, a private digest, or production multi-user access control.

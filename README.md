@@ -32,6 +32,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Private research schema](docs/private-research-schema.md)
 - [Private research summarizer](docs/private-research-summarizer.md)
 - [Private research library](docs/private-research-library.md)
+- [Private research UI](docs/private-research-ui.md)
 - [Optional Under the Radar connector stub](docs/private-undertheradar-connector.md)
 - [Private research settings and storage](docs/private-research-storage.md)
 
@@ -65,6 +66,11 @@ JSON validation. Its prompts frame output as a source summary, not personal fina
 The private library indexes structured summaries so local recommendations can be searched by
 ticker, company, date range, rating, sector, and risk/catalyst keyword, with timeline and
 document comparison helpers.
+
+The private Streamlit tab provides a local password-gated workspace for importing files or
+manual text, running the offline private summarizer, reviewing recommendations, checking
+risks/catalysts/numbers to verify, viewing source citations, and downloading private
+JSON/Markdown summaries.
 
 An optional Under the Radar connector stub exists for future personal automation design. It is
 disabled by default, requires explicit environment and terms gates, and still refuses to perform
@@ -128,6 +134,7 @@ environment tooling.
 | `MARKET_PDF_INSIGHTS_MODEL` | Optional | Overrides the default OpenAI model. |
 | `FRED_API_KEY` | FRED connector | Keep in the environment or scheduler secret store. |
 | `NEWSAPI_KEY` | NewsAPI connector | Keep in the environment or scheduler secret store. |
+| `MARKET_PRIVATE_UI_PASSWORD_HASH` | Private Streamlit tab when password protection is enabled | Store a hash from `hash_private_password`, not a plaintext password. |
 | `UNDERTHERADAR_CONNECTOR_ENABLED` | Future Under the Radar stub | Defaults to disabled; set only after terms confirmation. |
 | `UNDERTHERADAR_USERNAME` | Future Under the Radar stub | Keep in environment/keyring/secret store; never commit. |
 | `UNDERTHERADAR_PASSWORD` | Future Under the Radar stub | Keep in environment/keyring/secret store; never commit. |
@@ -201,6 +208,14 @@ The dashboard opens with the daily brief workflow backed by
 fixture brief without live APIs. It shows source status, disabled-source compliance notes,
 executive summary, recap/day-ahead, themes, risks, watchlist impacts, citations, verification
 flags, and JSON/Markdown/HTML downloads. A second tab keeps the PDF upload workflow.
+
+The `Private Research` tab uses the local private store, `.private-research` by default. It can
+import subscribed PDFs, saved emails, HTML/text files, or pasted notes; summarize and index them
+with the offline placeholder path; show latest summaries, ticker history, recommendation detail,
+risks, catalysts, numbers to verify, and citations; and download private JSON/Markdown. If
+`[password_protection].enabled = true`, set `MARKET_PRIVATE_UI_PASSWORD_HASH` in the environment
+or Streamlit secrets. Generate the hash with `hash_private_password`; do not store plaintext
+passwords in settings.
 
 ## Email
 
