@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "abs-cpi-2026-q1",
+      "title": "Consumer Price Index, Australia",
+      "summary": "CPI rose 4.6% through the year to the March 2026 quarter.",
+      "url": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/mar-quarter-2026",
+      "published_at": "2026-04-29T01:30:00Z",
+      "tickers": ["AUD"]
+    },
+    {
+      "id": "abs-labour-force-2026-03",
+      "title": "Labour Force, Australia",
+      "summary": "The unemployment rate remained at 4.3% in March 2026.",
+      "url": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/mar-2026",
+      "published_at": "2026-04-16T01:30:00Z",
+      "tickers": ["AUD"]
+    }
+  ]
+}

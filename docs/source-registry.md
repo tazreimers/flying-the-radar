@@ -50,7 +50,8 @@ Australian market sources:
 
 - `rba-rss`: official RBA public feed, disabled until connector settings are configured.
 - `abs-api`: official ABS API, disabled until connector settings are configured.
-- `asic-media`: ASIC public releases, disabled until connector settings are configured.
+- `asic-media`: disabled until a permitted API, RSS feed, licensed feed, or documented export
+  is configured.
 - `asx-announcements`: disabled until an official endpoint, licensed provider, or documented
   user export is configured.
 - `market-index`: disabled until a permitted API/feed/licence is configured.

@@ -255,6 +255,12 @@ def default_source_registry() -> SourceRegistry:
                 ),
                 terms_url="https://www.rba.gov.au/copyright/",
                 rate_limit_notes="Use polite polling and preserve attribution.",
+                metadata={
+                    "feed_url": "https://www.rba.gov.au/rss/rss-cb-media-releases.xml",
+                    "exchange_rates_feed_url": (
+                        "https://www.rba.gov.au/rss/rss-cb-exchange-rates.xml"
+                    ),
+                },
             ),
             _source(
                 source_id="abs-api",
@@ -275,22 +281,26 @@ def default_source_registry() -> SourceRegistry:
                 ),
                 terms_url="https://www.abs.gov.au/about/legislation-and-policy/copyright",
                 rate_limit_notes="Follow ABS API guidance and cache responsibly.",
+                metadata={
+                    "base_url": "https://data.api.abs.gov.au/rest/",
+                    "format": "jsondata",
+                },
             ),
             _source(
                 source_id="asic-media",
                 display_name="ASIC Media Releases",
                 category=SourceCategory.AUSTRALIAN_MARKET,
-                homepage_url="https://asic.gov.au/about-asic/news-centre/find-a-media-release/",
-                access_method=SourceAccessMethod.RSS,
-                fetch_strategy="rss_or_public_feed",
-                automation_allowed=True,
+                homepage_url="https://www.asic.gov.au/newsroom/media-releases/",
+                access_method=SourceAccessMethod.DISABLED,
+                fetch_strategy="permitted_api_rss_or_manual_export_required",
+                automation_allowed=False,
                 enabled=False,
                 terms_notes=(
-                    "Use public ASIC releases with attribution; enable only after "
-                    "connector review."
+                    "Disabled until a permitted API, RSS feed, licensed feed, or "
+                    "documented user export is configured. Do not scrape ASIC pages."
                 ),
                 terms_url="https://asic.gov.au/copyright/",
-                rate_limit_notes="Use low-frequency polling.",
+                rate_limit_notes="Requires endpoint and terms review.",
             ),
             _source(
                 source_id="asx-announcements",
@@ -510,6 +520,7 @@ def _source(
     terms_url: str | None = None,
     rate_limit_notes: str | None = None,
     redistribution_allowed: bool = False,
+    metadata: dict[str, Any] | None = None,
 ) -> SourceDefinition:
     """Create a non-credentialed source definition."""
 
@@ -531,6 +542,7 @@ def _source(
             rate_limit_notes=rate_limit_notes,
             redistribution_allowed=redistribution_allowed,
         ),
+        metadata=metadata or {},
     )
 
 

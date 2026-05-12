@@ -1,0 +1,19 @@
+<rss version="2.0">
+  <channel>
+    <title>Reserve Bank of Australia Media Releases</title>
+    <item>
+      <guid>2026-12</guid>
+      <title>Statement by the Monetary Policy Board: Monetary Policy Decision</title>
+      <description>The Board decided to leave the cash rate target unchanged.</description>
+      <link>https://www.rba.gov.au/media-releases/2026/mr-26-12.html</link>
+      <pubDate>Tue, 05 May 2026 04:30:00 GMT</pubDate>
+    </item>
+    <item>
+      <guid>2026-11</guid>
+      <title>Roundtable opens public consultation on payments</title>
+      <description>The RBA opened consultation on account-to-account payments.</description>
+      <link>https://www.rba.gov.au/media-releases/2026/mr-26-11.html</link>
+      <pubDate>Thu, 30 Apr 2026 04:30:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

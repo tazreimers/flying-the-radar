@@ -25,6 +25,7 @@ See:
 - [Source policy](docs/source-policy.md)
 - [Source registry](docs/source-registry.md)
 - [Ingestion framework](docs/ingestion-framework.md)
+- [Australian connectors](docs/australian-connectors.md)
 
 ## Features
 
@@ -38,6 +39,8 @@ See:
 - Placeholder and mock clients for local development and tests.
 - Public-source ingestion framework with RSS, JSON API, local fixture, deduplication, and
   JSONL cache support.
+- Australia-specific connector scaffolding for RBA RSS, ABS Data API/exports, permitted ASIC
+  exports, and disabled ASX/Market Index placeholders.
 
 ## Install
 
@@ -167,6 +170,8 @@ Core modules:
 - `chunker.py`: splits long text into overlapping chunks.
 - `insight_schema.py`: defines Pydantic report models.
 - `ingestion.py`: fetches, normalizes, deduplicates, and caches public source items.
+- `australian_connectors.py`: defines legal Australian market-intelligence connectors and
+  disabled placeholders.
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.
