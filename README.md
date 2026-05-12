@@ -28,6 +28,7 @@ See:
 - [Australian connectors](docs/australian-connectors.md)
 - [Global connectors](docs/global-connectors.md)
 - [Daily brief schema](docs/daily-brief-schema.md)
+- [Daily brief synthesis](docs/daily-brief-synthesis.md)
 
 ## Features
 
@@ -47,6 +48,7 @@ See:
   IMF/OECD/Bloomberg/Reuters placeholders.
 - Daily public market-intelligence brief schema with first-class source citations and
   short-snippet validation.
+- LLM synthesis layer for grouped source notes and final validated daily briefs.
 
 ## Install
 
@@ -184,6 +186,7 @@ Core modules:
 - `global_connectors.py`: defines global macro/news connectors, credential config, and
   licensed-source placeholders.
 - `daily_brief_schema.py`: defines the structured daily public market-intelligence brief.
+- `daily_brief_synthesis.py`: synthesizes normalized source items into daily briefs.
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.
