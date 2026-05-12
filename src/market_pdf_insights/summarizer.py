@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
 
 from market_pdf_insights.chunker import chunk_text
-from market_pdf_insights.insight_schema import MarketInsightSummary
+from market_pdf_insights.insight_schema import MarketInsightReport
 from market_pdf_insights.llm_client import PlaceholderLLMClient, SummaryClient
 from market_pdf_insights.pdf_loader import load_pdf_text
 
@@ -31,7 +31,7 @@ class MarketPdfSummarizer:
         self.client = client or PlaceholderLLMClient()
         self.config = config or SummarizerConfig()
 
-    def summarize(self, pdf_path: str | Path) -> MarketInsightSummary:
+    def summarize(self, pdf_path: str | Path) -> MarketInsightReport:
         """Produce a structured summary for a PDF path."""
 
         loaded_pdf = load_pdf_text(pdf_path)
@@ -49,7 +49,7 @@ class MarketPdfSummarizer:
             "page_count": loaded_pdf.page_count,
             "source_char_count": len(loaded_pdf.text),
         }
-        return replace(summary, metadata=metadata)
+        return summary.model_copy(update={"metadata": metadata})
 
 
 def summarize_pdf(
@@ -57,7 +57,7 @@ def summarize_pdf(
     *,
     client: SummaryClient | None = None,
     config: SummarizerConfig | None = None,
-) -> MarketInsightSummary:
+) -> MarketInsightReport:
     """Convenience wrapper around `MarketPdfSummarizer`."""
 
     return MarketPdfSummarizer(client=client, config=config).summarize(pdf_path)

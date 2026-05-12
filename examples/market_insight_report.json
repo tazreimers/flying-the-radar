@@ -1,0 +1,68 @@
+{
+  "document_title": "Small-Cap Market Outlook",
+  "executive_summary": "The report presents a mixed outlook, balancing earnings resilience against valuation and inflation risks.",
+  "market_stance": "mixed",
+  "key_claims": [
+    {
+      "claim": "Quality small-cap companies may benefit if rate pressure eases.",
+      "stance": "bullish",
+      "supporting_evidence": [
+        "The report links lower bond yields with improving small-cap appetite."
+      ],
+      "confidence_score": 0.72
+    }
+  ],
+  "supporting_evidence": [
+    "Lower yields and improving earnings breadth are cited as market supports."
+  ],
+  "risks": [
+    {
+      "description": "Inflation could keep policy restrictive.",
+      "severity": "medium",
+      "evidence": [
+        "The report notes sticky inflation as a valuation headwind."
+      ],
+      "affected_assets": [
+        "small-cap equities"
+      ]
+    }
+  ],
+  "sectors_mentioned": [
+    "materials",
+    "technology"
+  ],
+  "companies_or_tickers_mentioned": [
+    {
+      "name": "Example Resources",
+      "ticker": "EXR",
+      "asset_type": "company",
+      "exchange": "ASX",
+      "sector": "materials",
+      "sentiment": "bullish",
+      "rationale": "Mentioned as a beneficiary of lithium demand."
+    }
+  ],
+  "macro_assumptions": [
+    {
+      "assumption": "Interest rates are near a peak.",
+      "indicator": "interest rates",
+      "direction": "falling",
+      "evidence": [
+        "The report discusses lower bond yields."
+      ]
+    }
+  ],
+  "numbers_to_verify": [
+    {
+      "number": "12%",
+      "context": "Projected revenue growth for the next financial year.",
+      "source_excerpt": "Management targets 12% revenue growth.",
+      "reason": "Forecast numbers should be checked against company guidance.",
+      "priority": "high"
+    }
+  ],
+  "unanswered_questions": [
+    "Which holdings have the strongest evidence behind the stated upside?"
+  ],
+  "confidence_score": 0.68
+}

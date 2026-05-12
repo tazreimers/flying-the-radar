@@ -20,9 +20,9 @@ class SummarizerTests(unittest.TestCase):
             write_sample_pdf(
                 pdf_path,
                 [
-                    "XYZ delivered revenue growth and margin improvement. "
-                    "The opportunity is supported by lithium demand. "
-                    "Key risks include inflation, volatility, and execution pressure."
+                    "XYZ delivered revenue growth and margin improvement.",
+                    "The opportunity is supported by lithium demand.",
+                    "Risks include inflation, volatility, and execution pressure.",
                 ],
             )
 
@@ -30,9 +30,11 @@ class SummarizerTests(unittest.TestCase):
 
             self.assertTrue(summary.executive_summary)
             self.assertIsInstance(summary.executive_summary, str)
-            self.assertIn("growth", summary.key_themes)
-            self.assertIn("commodities", summary.key_themes)
-            self.assertEqual(summary.company_mentions[0].ticker, "XYZ")
+            self.assertEqual(summary.market_stance, "mixed")
+            self.assertTrue(summary.key_claims)
+            self.assertIn("materials", summary.sectors_mentioned)
+            self.assertEqual(summary.companies_or_tickers_mentioned[0].ticker, "XYZ")
+            self.assertTrue(summary.risks)
             self.assertGreaterEqual(summary.metadata["source_char_count"], 1)
 
 

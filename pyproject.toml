@@ -12,6 +12,7 @@ authors = [
     { name = "Flying the Radar" }
 ]
 dependencies = [
+    "pydantic>=2.7",
     "PyMuPDF>=1.24",
 ]
 

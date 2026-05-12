@@ -1,8 +1,10 @@
 # Market PDF Insights
 
-`market-pdf-insights` accepts a PDF containing stock market commentary or financial research and returns a structured JSON summary.
+`market-pdf-insights` accepts a PDF containing stock market commentary or financial
+research and returns a structured JSON summary.
 
-This first pass includes a PyMuPDF-backed PDF extraction layer and a deterministic placeholder summarizer. Hosted LLM summarization is not implemented yet.
+This first pass includes a PyMuPDF-backed PDF extraction layer, Pydantic output schema,
+and a deterministic placeholder summarizer. Hosted LLM summarization is not implemented yet.
 
 ## Install
 
@@ -45,17 +47,24 @@ The command currently writes placeholder JSON to stdout:
 
 ```json
 {
-  "source_file": "path/to/file.pdf",
+  "document_title": "Research Note",
   "executive_summary": "...",
-  "key_themes": ["earnings", "interest rates"],
-  "company_mentions": [],
+  "market_stance": "mixed",
+  "key_claims": [],
+  "supporting_evidence": [],
   "risks": [],
-  "opportunities": [],
-  "disclaimers": [],
-  "sections": [],
+  "sectors_mentioned": [],
+  "companies_or_tickers_mentioned": [],
+  "macro_assumptions": [],
+  "numbers_to_verify": [],
+  "unanswered_questions": [],
+  "confidence_score": 0.35,
+  "source_file": "path/to/file.pdf",
   "metadata": {}
 }
 ```
+
+For a fuller validated example, see `examples/market_insight_report.json`.
 
 For compact output:
 
@@ -77,6 +86,6 @@ python3 -m pytest
 - `pdf_loader.py` validates a PDF path and extracts ordered page text with PyMuPDF.
 - `chunker.py` splits long research text into overlapping chunks.
 - `llm_client.py` provides a placeholder summarization client.
-- `insight_schema.py` defines the structured summary dataclasses.
+- `insight_schema.py` defines the Pydantic structured output models.
 - `summarizer.py` orchestrates loading, chunking, and summarization.
 - `cli.py` exposes the `market-pdf-insights` command.

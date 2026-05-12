@@ -32,8 +32,9 @@ class CliTests(unittest.TestCase):
             payload = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
             self.assertEqual(payload["metadata"]["model"], "placeholder")
-            self.assertIn("earnings", payload["key_themes"])
-            self.assertEqual(payload["company_mentions"][0]["ticker"], "ABC")
+            self.assertEqual(payload["market_stance"], "mixed")
+            self.assertTrue(payload["key_claims"])
+            self.assertEqual(payload["companies_or_tickers_mentioned"][0]["ticker"], "ABC")
 
 
 if __name__ == "__main__":

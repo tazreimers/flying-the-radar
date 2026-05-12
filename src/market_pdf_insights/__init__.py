@@ -1,18 +1,24 @@
 """Tools for summarizing market research PDFs into structured insights."""
 
 from market_pdf_insights.insight_schema import (
-    CompanyMention,
-    MarketInsightSummary,
-    SummarySection,
+    KeyClaim,
+    MacroAssumption,
+    MarketInsightReport,
+    MentionedAsset,
+    Risk,
+    VerificationItem,
 )
 from market_pdf_insights.pdf_loader import extract_pdf_text
 from market_pdf_insights.summarizer import MarketPdfSummarizer, summarize_pdf
 
 __all__ = [
-    "CompanyMention",
-    "MarketInsightSummary",
+    "KeyClaim",
+    "MacroAssumption",
+    "MarketInsightReport",
     "MarketPdfSummarizer",
-    "SummarySection",
+    "MentionedAsset",
+    "Risk",
+    "VerificationItem",
     "extract_pdf_text",
     "summarize_pdf",
 ]
