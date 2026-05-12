@@ -1,11 +1,15 @@
-"""Placeholder LLM client interfaces and deterministic summarization."""
+"""LLM client interfaces and summarization implementations."""
 
 from __future__ import annotations
 
 from collections import Counter
+import json
+import os
 from pathlib import Path
 import re
-from typing import Protocol, Sequence
+from typing import Any, Protocol, Sequence, TypeVar
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from market_pdf_insights.insight_schema import (
     KeyClaim,
@@ -17,6 +21,25 @@ from market_pdf_insights.insight_schema import (
 )
 
 
+DEFAULT_OPENAI_MODEL = "gpt-4.1-mini"
+OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
+MARKET_MODEL_ENV = "MARKET_PDF_INSIGHTS_MODEL"
+
+TModel = TypeVar("TModel", bound=BaseModel)
+
+
+class LLMSummarizationError(RuntimeError):
+    """Base error for hosted LLM summarization failures."""
+
+
+class LLMConfigurationError(LLMSummarizationError):
+    """Raised when a hosted LLM client is missing required configuration."""
+
+
+class LLMResponseValidationError(LLMSummarizationError):
+    """Raised when an LLM response cannot be parsed into the expected schema."""
+
+
 class SummaryClient(Protocol):
     """Protocol implemented by clients that can summarize document chunks."""
 
@@ -24,9 +47,208 @@ class SummaryClient(Protocol):
         self,
         chunks: Sequence[str],
         *,
-        source_file: str,
+        source_file: str | None = None,
     ) -> MarketInsightReport:
         """Summarize text chunks from a source document."""
+
+
+class ChunkInsightNotes(BaseModel):
+    """Structured notes extracted from one source chunk before final synthesis."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    chunk_index: int = Field(ge=0)
+    summary: str = Field(min_length=1)
+    key_claims: list[KeyClaim] = Field(default_factory=list)
+    supporting_evidence: list[str] = Field(default_factory=list)
+    risks: list[Risk] = Field(default_factory=list)
+    sectors_mentioned: list[str] = Field(default_factory=list)
+    companies_or_tickers_mentioned: list[MentionedAsset] = Field(default_factory=list)
+    macro_assumptions: list[MacroAssumption] = Field(default_factory=list)
+    numbers_to_verify: list[VerificationItem] = Field(default_factory=list)
+    unanswered_questions: list[str] = Field(default_factory=list)
+
+
+class OpenAISummaryClient:
+    """Summarize market research chunks using the OpenAI Responses API."""
+
+    def __init__(
+        self,
+        *,
+        api_key: str | None = None,
+        model: str | None = None,
+        openai_client: Any | None = None,
+        max_retries: int = 2,
+    ) -> None:
+        if max_retries < 0:
+            raise ValueError("max_retries must be greater than or equal to zero.")
+
+        self.model = model or os.environ.get(MARKET_MODEL_ENV) or DEFAULT_OPENAI_MODEL
+        self.max_retries = max_retries
+        self._client = openai_client or self._build_client(api_key)
+
+    def summarize_chunks(
+        self,
+        chunks: Sequence[str],
+        *,
+        source_file: str | None = None,
+    ) -> MarketInsightReport:
+        """Summarize chunks into notes, then synthesize one validated report."""
+
+        if not chunks:
+            raise ValueError("At least one text chunk is required for summarization.")
+
+        notes = [
+            self._summarize_chunk(chunk, chunk_index=index)
+            for index, chunk in enumerate(chunks)
+        ]
+        report = self._synthesize_report(notes, source_file=source_file)
+        metadata = {
+            **report.metadata,
+            "chunk_count": len(chunks),
+            "note_count": len(notes),
+            "model": self.model,
+            "llm_provider": "openai",
+        }
+        return report.model_copy(
+            update={
+                "source_file": report.source_file or source_file,
+                "metadata": metadata,
+            }
+        )
+
+    def _build_client(self, api_key: str | None) -> Any:
+        """Build the OpenAI SDK client, loading the API key from the environment."""
+
+        resolved_api_key = api_key or os.environ.get(OPENAI_API_KEY_ENV)
+        if not resolved_api_key:
+            raise LLMConfigurationError(
+                f"{OPENAI_API_KEY_ENV} is required when using OpenAISummaryClient."
+            )
+
+        try:
+            from openai import OpenAI
+        except ImportError as exc:
+            raise LLMConfigurationError(
+                "The openai package is required for OpenAISummaryClient."
+            ) from exc
+
+        return OpenAI(api_key=resolved_api_key)
+
+    def _summarize_chunk(self, chunk: str, *, chunk_index: int) -> ChunkInsightNotes:
+        """Create structured notes for a single chunk."""
+
+        prompt = (
+            "Summarize this market research PDF chunk into structured notes.\n\n"
+            f"Chunk index: {chunk_index}\n\n"
+            f"{chunk}"
+        )
+        return self._request_json_model(
+            ChunkInsightNotes,
+            [
+                {"role": "system", "content": _CHUNK_NOTES_SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
+    def _synthesize_report(
+        self,
+        notes: Sequence[ChunkInsightNotes],
+        *,
+        source_file: str | None,
+    ) -> MarketInsightReport:
+        """Synthesize chunk notes into the final report schema."""
+
+        notes_json = json.dumps(
+            [note.model_dump(mode="json", exclude_none=True) for note in notes],
+            indent=2,
+        )
+        prompt = (
+            "Synthesize these chunk-level notes into one final market insight report.\n"
+            "Preserve uncertainty, avoid unsupported claims, and deduplicate repeated items.\n\n"
+            f"Source file: {source_file or 'unknown'}\n\n"
+            f"Chunk notes JSON:\n{notes_json}"
+        )
+        return self._request_json_model(
+            MarketInsightReport,
+            [
+                {"role": "system", "content": _FINAL_REPORT_SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
+    def _request_json_model(
+        self,
+        response_model: type[TModel],
+        input_messages: list[dict[str, str]],
+    ) -> TModel:
+        """Request JSON from the model and retry if parsing or validation fails."""
+
+        messages = list(input_messages)
+        last_error: Exception | None = None
+        last_text = ""
+
+        for attempt in range(self.max_retries + 1):
+            response = self._client.responses.create(
+                model=self.model,
+                input=messages,
+                text={"format": {"type": "json_object"}},
+            )
+            last_text = _response_output_text(response)
+            try:
+                payload = _load_json_object(last_text)
+                return response_model.model_validate(payload)
+            except (json.JSONDecodeError, TypeError, ValueError, ValidationError) as exc:
+                last_error = exc
+                if attempt >= self.max_retries:
+                    break
+                messages = [
+                    *input_messages,
+                    {
+                        "role": "user",
+                        "content": (
+                            "The previous response was invalid JSON or failed schema "
+                            f"validation: {_truncate(str(exc), 700)}\n\n"
+                            "Return only one corrected JSON object for the requested schema. "
+                            "Do not include markdown fences or commentary."
+                        ),
+                    },
+                ]
+
+        raise LLMResponseValidationError(
+            "OpenAI response could not be parsed into "
+            f"{response_model.__name__} after {self.max_retries + 1} attempt(s). "
+            f"Last error: {last_error}. Last response: {_truncate(last_text, 700)}"
+        )
+
+
+class MockLLMClient:
+    """Small mock summary client for tests and local integration wiring."""
+
+    def __init__(self, report: MarketInsightReport | None = None) -> None:
+        self.report = report or MarketInsightReport.example()
+        self.calls: list[list[str]] = []
+
+    def summarize_chunks(
+        self,
+        chunks: Sequence[str],
+        *,
+        source_file: str | None = None,
+    ) -> MarketInsightReport:
+        """Return a predefined report and record the provided chunks."""
+
+        self.calls.append(list(chunks))
+        metadata = {
+            **self.report.metadata,
+            "chunk_count": len(chunks),
+            "model": "mock",
+        }
+        return self.report.model_copy(
+            update={
+                "source_file": self.report.source_file or source_file,
+                "metadata": metadata,
+            }
+        )
 
 
 class PlaceholderLLMClient:
@@ -38,7 +260,7 @@ class PlaceholderLLMClient:
         self,
         chunks: Sequence[str],
         *,
-        source_file: str,
+        source_file: str | None = None,
     ) -> MarketInsightReport:
         """Build a structured summary from chunks using simple text heuristics."""
 
@@ -99,6 +321,33 @@ class PlaceholderLLMClient:
             },
         )
 
+
+_CHUNK_NOTES_SYSTEM_PROMPT = f"""
+You extract structured notes from one chunk of market research text.
+Return only valid JSON matching this JSON Schema:
+
+{json.dumps(ChunkInsightNotes.model_json_schema(), indent=2)}
+
+Rules:
+- Base every field only on the provided chunk.
+- Keep evidence snippets short and source-grounded.
+- Use empty arrays when the chunk does not support a field.
+- Use "unclear" for stance or direction when the chunk is ambiguous.
+""".strip()
+
+_FINAL_REPORT_SYSTEM_PROMPT = f"""
+You synthesize chunk-level market research notes into one final report.
+Return only valid JSON matching this JSON Schema:
+
+{json.dumps(MarketInsightReport.model_json_schema(), indent=2)}
+
+Rules:
+- Use only the provided notes.
+- Deduplicate repeated claims, evidence, risks, assets, assumptions, and questions.
+- Do not invent tickers, companies, numbers, or macro assumptions.
+- Put uncertain or externally checkable numeric claims in numbers_to_verify.
+- Set confidence_score lower when the notes are thin, conflicting, or ambiguous.
+""".strip()
 
 _SECTOR_TERMS = {
     "communication services": ["telecom", "media", "advertising", "communication services"],
@@ -197,6 +446,75 @@ def _split_sentences(text: str) -> list[str]:
     return [fragment.strip() for fragment in fragments if fragment.strip()]
 
 
+def _response_output_text(response: Any) -> str:
+    """Extract text from an OpenAI Responses API response object."""
+
+    output_text = getattr(response, "output_text", None)
+    if isinstance(output_text, str):
+        return output_text
+    if isinstance(response, str):
+        return response
+    if isinstance(response, dict):
+        output_text = response.get("output_text")
+        if isinstance(output_text, str):
+            return output_text
+        output = response.get("output", [])
+    else:
+        output = getattr(response, "output", [])
+
+    text_parts: list[str] = []
+    for item in output or []:
+        content = (
+            item.get("content", []) if isinstance(item, dict) else getattr(item, "content", [])
+        )
+        for part in content or []:
+            if isinstance(part, dict):
+                text = part.get("text")
+            else:
+                text = getattr(part, "text", None)
+            if isinstance(text, str):
+                text_parts.append(text)
+    return "".join(text_parts)
+
+
+def _load_json_object(text: str) -> dict[str, Any]:
+    """Load one JSON object from model text, tolerating code fences around it."""
+
+    cleaned = _strip_markdown_json_fence(text.strip())
+    try:
+        payload = json.loads(cleaned)
+    except json.JSONDecodeError:
+        object_start = cleaned.find("{")
+        object_end = cleaned.rfind("}")
+        if object_start == -1 or object_end == -1 or object_end <= object_start:
+            raise
+        payload = json.loads(cleaned[object_start : object_end + 1])
+
+    if not isinstance(payload, dict):
+        raise TypeError("Expected a JSON object.")
+    return payload
+
+
+def _strip_markdown_json_fence(text: str) -> str:
+    """Remove a single markdown JSON fence if the model included one."""
+
+    if not text.startswith("```"):
+        return text
+
+    lines = text.splitlines()
+    if len(lines) >= 3 and lines[0].startswith("```") and lines[-1].strip() == "```":
+        return "\n".join(lines[1:-1]).strip()
+    return text
+
+
+def _truncate(text: str, max_chars: int) -> str:
+    """Truncate long model text for errors and retry prompts."""
+
+    if len(text) <= max_chars:
+        return text
+    return f"{text[:max_chars]}..."
+
+
 def _remove_page_markers(text: str) -> str:
     """Remove extraction page markers before summarization heuristics run."""
 
@@ -209,14 +527,16 @@ def _first_sentences(sentences: Sequence[str], *, limit: int) -> list[str]:
     return list(sentences[:limit])
 
 
-def _infer_document_title(source_file: str, sentences: Sequence[str]) -> str:
+def _infer_document_title(source_file: str | None, sentences: Sequence[str]) -> str:
     """Infer a readable document title from the first heading or file name."""
 
     for sentence in sentences[:3]:
         title = sentence.strip("- \n\t")
         if 4 <= len(title) <= 120 and len(title.split()) <= 14:
             return title
-    return Path(source_file).stem.replace("-", " ").replace("_", " ").title()
+    if source_file:
+        return Path(source_file).stem.replace("-", " ").replace("_", " ").title()
+    return "Untitled Market Research"
 
 
 def _extract_sectors(text: str) -> list[str]:
