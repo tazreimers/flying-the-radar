@@ -29,6 +29,7 @@ See:
 - [Global connectors](docs/global-connectors.md)
 - [Daily brief schema](docs/daily-brief-schema.md)
 - [Daily brief synthesis](docs/daily-brief-synthesis.md)
+- [Daily brief rendering](docs/daily-brief-rendering.md)
 
 ## Features
 
@@ -49,6 +50,8 @@ See:
 - Daily public market-intelligence brief schema with first-class source citations and
   short-snippet validation.
 - LLM synthesis layer for grouped source notes and final validated daily briefs.
+- Daily brief rendering to JSON, Markdown, HTML, plain text, terminal summary, and dry-run
+  email output.
 
 ## Install
 
@@ -187,6 +190,7 @@ Core modules:
   licensed-source placeholders.
 - `daily_brief_schema.py`: defines the structured daily public market-intelligence brief.
 - `daily_brief_synthesis.py`: synthesizes normalized source items into daily briefs.
+- `daily_brief_rendering.py`: renders daily briefs and writes dry-run email output.
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.
@@ -228,6 +232,8 @@ python examples/summarize_pdf.py reports/small-caps-report-issue-700.pdf
   against primary sources.
 - Live market-data, filing, and news connectors are disabled until source-specific access
   settings and terms are configured.
+- Daily brief email support currently renders and writes dry-run output only; SMTP or provider
+  credentials must be configured in a separate sender implementation later.
 - The Streamlit app stores uploaded PDFs only in temporary files during processing.
 - Pivot 2 connectors must use permitted APIs, RSS feeds, licensed sources, user-provided
   content, or email/manual ingestion; prohibited scraping remains out of scope.
