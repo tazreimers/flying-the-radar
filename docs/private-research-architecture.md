@@ -58,6 +58,8 @@ flowchart TD
 - `private_research_schema.py`: structured private recommendation models for company ratings,
   thesis points, risks, catalysts, valuation notes, watch items, source excerpts, and personal
   research questions.
+- `private_research_synthesis.py`: two-stage private summarizer that extracts chunk notes and
+  synthesizes validated `PrivateResearchDocument` output with safety prompts and JSON retries.
 - `private_undertheradar_connector.py`: disabled Under the Radar connector stub. It validates
   environment, terms, settings, and credential gates, then refuses live automation.
 - `private_library.py`: private document metadata, storage, and history. Separate from the
@@ -94,10 +96,11 @@ The private CLI supports:
 - `market-pdf-insights private summarize DOCUMENT_ID`.
 
 The current implementation also has a private recommendation schema with short excerpt limits,
-rating normalization, source document references, and confidence validation. The current
-summarizer is still a deterministic local placeholder that extracts a short summary,
-recommendation labels, uppercase ticker-like symbols, risks, catalysts, and a citation snippet
-from the imported document text. The Under the Radar connector is only a disabled safety stub;
-it does not implement live login, scraping, browser automation, or PDF download. The app also
-does not yet implement a password-protected UI, search/Q&A, a private digest, or full
-LLM-backed recommendation extraction into the new schema.
+rating normalization, source document references, and confidence validation. It now includes a
+private summarizer that chunks imported extracted text, creates source-grounded chunk notes, and
+synthesizes validated private recommendation output. The default client is deterministic and
+offline; the OpenAI client is injectable and retries malformed JSON.
+
+The Under the Radar connector is only a disabled safety stub; it does not implement live login,
+scraping, browser automation, or PDF download. The app also does not yet implement a
+password-protected UI, search/Q&A, or a private digest.

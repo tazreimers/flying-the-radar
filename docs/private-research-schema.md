@@ -52,3 +52,6 @@ print(PrivateResearchDocument.example_json())
 This schema stores facts, short paraphrases/excerpts, source references, recommendation labels,
 risks, catalysts, valuation assumptions, and verification prompts. It does not store full report
 text and does not produce personal financial advice.
+
+`market_pdf_insights.private_research_synthesis` produces this schema from imported private
+documents through a chunk-notes-then-synthesis flow.

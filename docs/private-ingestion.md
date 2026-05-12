@@ -63,6 +63,14 @@ market-pdf-insights private list
 market-pdf-insights private summarize private-abc123
 ```
 
+For structured recommendation output, use the private synthesis API:
+
+```python
+from market_pdf_insights.private_research_synthesis import summarize_imported_private_research
+
+summary = summarize_imported_private_research("private-abc123", store=store)
+```
+
 Use `--settings path/to/private-settings.toml` to load a settings file, or `--data-dir` to point
 the private store at a local directory for tests, experiments, or a separate personal library.
 

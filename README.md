@@ -30,6 +30,7 @@ unless subscription terms explicitly permit the exact access pattern.
 - [Private research policy](docs/private-research-policy.md)
 - [Private ingestion](docs/private-ingestion.md)
 - [Private research schema](docs/private-research-schema.md)
+- [Private research summarizer](docs/private-research-summarizer.md)
 - [Optional Under the Radar connector stub](docs/private-undertheradar-connector.md)
 - [Private research settings and storage](docs/private-research-storage.md)
 
@@ -55,6 +56,10 @@ scraping a logged-in website.
 The private recommendation schema captures company/ticker ratings, thesis points, risks,
 catalysts, valuation notes, numbers to verify, and short source excerpts without storing full
 subscribed articles or reports.
+
+The private summarizer can turn an imported private document into that schema using the existing
+chunking pipeline, an offline placeholder client, or an injected/OpenAI client with retrying
+JSON validation. Its prompts frame output as a source summary, not personal financial advice.
 
 An optional Under the Radar connector stub exists for future personal automation design. It is
 disabled by default, requires explicit environment and terms gates, and still refuses to perform
@@ -284,6 +289,7 @@ Core modules:
 - `daily_brief_runner.py`: configured ingestion, synthesis, output writing, and dry-run email.
 - `private_ingestion.py`: private PDFs, local files, saved emails, and manual text imports.
 - `private_research_schema.py`: structured private stock recommendation schema.
+- `private_research_synthesis.py`: private chunk notes and structured recommendation synthesis.
 - `private_research_storage.py`: local SQLite store for private documents, summaries, citations.
 - `private_settings.py`: local-only private settings, retention, and password hash references.
 - `private_undertheradar_connector.py`: disabled connector stub and safety gates.
