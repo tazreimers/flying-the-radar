@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from contextlib import redirect_stderr, redirect_stdout
+from email import policy
+from email.parser import BytesParser
 import io
 import json
 from pathlib import Path
@@ -67,6 +69,198 @@ class CliTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertIn("error:", stderr.getvalue())
         self.assertIn("PDF file does not exist", stderr.getvalue())
+
+    def test_brief_run_from_fixture_config_writes_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            config_path = _write_brief_fixture_config(tmp_path)
+            json_path = tmp_path / "out" / "brief.json"
+            markdown_path = tmp_path / "out" / "brief.md"
+            html_path = tmp_path / "out" / "brief.html"
+            stdout = io.StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "brief",
+                        "run",
+                        "--config",
+                        str(config_path),
+                        "--date",
+                        "2026-05-12",
+                        "--output",
+                        str(json_path),
+                        "--markdown",
+                        str(markdown_path),
+                        "--html",
+                        str(html_path),
+                        "--llm",
+                        "placeholder",
+                    ]
+                )
+
+            terminal_output = stdout.getvalue()
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+            self.assertEqual(exit_code, 0)
+            self.assertIn("Daily brief: 2026-05-12", terminal_output)
+            self.assertIn(f"JSON: {json_path}", terminal_output)
+            self.assertEqual(payload["briefing_date"], "2026-05-12")
+            self.assertEqual(payload["market_stance"], "mixed")
+            self.assertIn("## Executive Summary", markdown_path.read_text(encoding="utf-8"))
+            self.assertIn("<h2>Executive Summary</h2>", html_path.read_text(encoding="utf-8"))
+
+    def test_brief_validate_config_and_sources_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            config_path = _write_brief_fixture_config(tmp_path)
+            stdout = io.StringIO()
+
+            with redirect_stdout(stdout):
+                validate_exit = main(
+                    ["brief", "validate-config", "--config", str(config_path)]
+                )
+            with redirect_stdout(stdout):
+                sources_exit = main(["brief", "sources", "--config", str(config_path)])
+
+            output = stdout.getvalue()
+            self.assertEqual(validate_exit, 0)
+            self.assertEqual(sources_exit, 0)
+            self.assertIn("Config valid", output)
+            self.assertIn("fixture-market: Fixture Market", output)
+
+    def test_brief_run_with_cache_can_repeat_from_fetched_items(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            config_path = _write_brief_fixture_config(tmp_path, cache=True)
+            first_json_path = tmp_path / "out" / "first.json"
+            second_json_path = tmp_path / "out" / "second.json"
+
+            with redirect_stdout(io.StringIO()):
+                first_exit = main(
+                    [
+                        "brief",
+                        "run",
+                        "--config",
+                        str(config_path),
+                        "--date",
+                        "2026-05-12",
+                        "--output",
+                        str(first_json_path),
+                    ]
+                )
+            with redirect_stdout(io.StringIO()):
+                second_exit = main(
+                    [
+                        "brief",
+                        "run",
+                        "--config",
+                        str(config_path),
+                        "--date",
+                        "2026-05-12",
+                        "--output",
+                        str(second_json_path),
+                    ]
+                )
+
+            self.assertEqual(first_exit, 0)
+            self.assertEqual(second_exit, 0)
+            self.assertTrue(first_json_path.exists())
+            self.assertTrue(second_json_path.exists())
+
+    def test_brief_send_dry_run_writes_eml_without_sending(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            config_path = _write_brief_fixture_config(tmp_path)
+            eml_path = tmp_path / "email" / "brief.eml"
+            stdout = io.StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "brief",
+                        "send",
+                        "--dry-run",
+                        "--config",
+                        str(config_path),
+                        "--date",
+                        "2026-05-12",
+                        "--email-dry-run",
+                        str(eml_path),
+                    ]
+                )
+
+            parsed = BytesParser(policy=policy.default).parsebytes(eml_path.read_bytes())
+            self.assertEqual(exit_code, 0)
+            self.assertIn("Email dry-run", stdout.getvalue())
+            self.assertTrue(parsed.is_multipart())
+            self.assertEqual(parsed["To"], "reader@example.test")
+            self.assertTrue(parsed["Subject"].startswith("Daily Market Brief: 2026-05-12"))
+
+
+def _write_brief_fixture_config(tmp_path: Path, *, cache: bool = False) -> Path:
+    fixture_path = tmp_path / "items.jsonl"
+    fixture_path.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "id": "market-1",
+                        "title": "BHP rises as iron ore supports the ASX",
+                        "body": "BHP and AUD rose while investors watched rates.",
+                        "url": "https://example.test/bhp",
+                        "published_at": "2026-05-12T01:00:00Z",
+                        "tickers": ["BHP", "AUD"],
+                    }
+                ),
+                json.dumps(
+                    {
+                        "id": "macro-1",
+                        "title": "US yields pressure growth equities",
+                        "body": "Treasury yields moved higher and created downside risk.",
+                        "url": "https://example.test/yields",
+                        "published_at": "2026-05-12T02:00:00Z",
+                        "tickers": ["DGS10", "USD"],
+                    }
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "daily-brief.toml"
+    ingestion_section = (
+        """
+
+[ingestion]
+cache_path = "cache/items.jsonl"
+"""
+        if cache
+        else ""
+    )
+    config_path.write_text(
+        f"""
+watchlist = ["BHP", "AUD", "DGS10"]
+{ingestion_section}
+
+[llm]
+backend = "placeholder"
+
+[email]
+sender = "briefs@example.test"
+recipients = ["reader@example.test"]
+
+[[sources]]
+source_id = "fixture-market"
+display_name = "Fixture Market"
+kind = "local_fixture"
+category = "australian_market"
+fixture_path = "{fixture_path.name}"
+terms_notes = "Fixture terms permit local test use."
+terms_url = "https://example.test/terms"
+""".strip(),
+        encoding="utf-8",
+    )
+    return config_path
 
 
 if __name__ == "__main__":

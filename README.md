@@ -30,6 +30,7 @@ See:
 - [Daily brief schema](docs/daily-brief-schema.md)
 - [Daily brief synthesis](docs/daily-brief-synthesis.md)
 - [Daily brief rendering](docs/daily-brief-rendering.md)
+- [Daily brief operations](docs/daily-brief-operations.md)
 
 ## Features
 
@@ -52,6 +53,8 @@ See:
 - LLM synthesis layer for grouped source notes and final validated daily briefs.
 - Daily brief rendering to JSON, Markdown, HTML, plain text, terminal summary, and dry-run
   email output.
+- Daily brief CLI operations for TOML config validation, source status, fixture-backed runs,
+  rendered outputs, and dry-run email files.
 
 ## Install
 
@@ -91,6 +94,27 @@ Save JSON and Markdown:
 market-pdf-insights summarize reports/small-caps-report-issue-700.pdf \
   --output report.json \
   --markdown report.md
+```
+
+Run a fixture-backed daily market brief:
+
+```bash
+market-pdf-insights brief validate-config --config examples/daily_brief_config.toml
+market-pdf-insights brief run \
+  --config examples/daily_brief_config.toml \
+  --date 2026-05-12 \
+  --output outputs/daily-brief.json \
+  --markdown outputs/daily-brief.md \
+  --html outputs/daily-brief.html
+```
+
+Write a dry-run email file:
+
+```bash
+market-pdf-insights brief send \
+  --dry-run \
+  --config examples/daily_brief_config.toml \
+  --email-dry-run outputs/daily-brief.eml
 ```
 
 Control chunk size:
@@ -191,6 +215,8 @@ Core modules:
 - `daily_brief_schema.py`: defines the structured daily public market-intelligence brief.
 - `daily_brief_synthesis.py`: synthesizes normalized source items into daily briefs.
 - `daily_brief_rendering.py`: renders daily briefs and writes dry-run email output.
+- `daily_brief_config.py`: loads and validates daily brief TOML configuration.
+- `daily_brief_runner.py`: runs configured ingestion, synthesis, rendering, and dry-run email.
 - `llm_client.py`: provides placeholder, mock, and OpenAI summarization clients.
 - `summarizer.py`: orchestrates PDF loading, chunking, and summarization.
 - `report_rendering.py`: renders terminal and Markdown summaries.
