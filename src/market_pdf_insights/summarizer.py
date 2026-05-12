@@ -15,8 +15,8 @@ from market_pdf_insights.pdf_loader import load_pdf_text
 class SummarizerConfig:
     """Configuration for document chunking and summarization."""
 
-    max_chunk_chars: int = 4_000
-    chunk_overlap: int = 400
+    max_chunk_chars: int = 6_000
+    chunk_overlap: int = 500
 
 
 class MarketPdfSummarizer:
@@ -61,4 +61,3 @@ def summarize_pdf(
     """Convenience wrapper around `MarketPdfSummarizer`."""
 
     return MarketPdfSummarizer(client=client, config=config).summarize(pdf_path)
-

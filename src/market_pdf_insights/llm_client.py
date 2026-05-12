@@ -6,7 +6,6 @@ from collections import Counter
 import re
 from typing import Protocol, Sequence
 
-from market_pdf_insights.chunker import TextChunk
 from market_pdf_insights.insight_schema import (
     CompanyMention,
     MarketInsightSummary,
@@ -19,7 +18,7 @@ class SummaryClient(Protocol):
 
     def summarize_chunks(
         self,
-        chunks: Sequence[TextChunk],
+        chunks: Sequence[str],
         *,
         source_file: str,
     ) -> MarketInsightSummary:
@@ -33,13 +32,13 @@ class PlaceholderLLMClient:
 
     def summarize_chunks(
         self,
-        chunks: Sequence[TextChunk],
+        chunks: Sequence[str],
         *,
         source_file: str,
     ) -> MarketInsightSummary:
         """Build a structured summary from chunks using simple text heuristics."""
 
-        combined_text = " ".join(chunk.text for chunk in chunks)
+        combined_text = " ".join(chunks)
         sentences = _split_sentences(combined_text)
         executive_summary = " ".join(_first_sentences(sentences, limit=3))
         key_themes = _extract_key_themes(combined_text)
@@ -136,7 +135,6 @@ def _extract_key_themes(text: str) -> list[str]:
 def _extract_company_mentions(text: str) -> list[CompanyMention]:
     """Extract likely all-caps ticker symbols from the source text."""
 
-    ignored = {"ASX", "CEO", "CFO", "ETF", "GDP", "LLM", "PDF", "USD"}
     ignored = {"ASX", "CEO", "CFO", "ETF", "GDP", "LLM", "PDF", "USD"}
     counts = Counter(
         match.group(0)
