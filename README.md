@@ -111,6 +111,17 @@ assumptions, sector implications, named assets, time horizon, catalysts, risks, 
 requiring external verification. They explicitly instruct the model not to provide
 financial advice.
 
+## Streamlit App
+
+Run the web app locally:
+
+```bash
+streamlit run src/market_pdf_insights/streamlit_app.py
+```
+
+The app accepts a PDF upload, displays the executive summary, stance, claims, bullish
+points, risks, assets, and numbers to verify, and provides JSON and Markdown downloads.
+
 ## Development
 
 Run tests with either command:
@@ -126,5 +137,6 @@ python3 -m pytest
 - `chunker.py` splits long research text into overlapping chunks.
 - `llm_client.py` provides placeholder, mock, and OpenAI summarization clients.
 - `insight_schema.py` defines the Pydantic structured output models.
+- `streamlit_app.py` exposes the upload-and-summarize web app.
 - `summarizer.py` orchestrates loading, chunking, and summarization.
 - `cli.py` exposes the `market-pdf-insights` command.
